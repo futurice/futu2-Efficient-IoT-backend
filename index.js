@@ -43,7 +43,7 @@ wsServer.on('request', request => {
             connection.sendBytes(message.binaryData);
         }
     });
-    connection.on('close', function(reasonCode, description) {
+    connection.on('close', (reasonCode, description) => {
         console.log(`${new Date()} Peer ${connection.remoteAddress} disconnected.`);
     });
 });
