@@ -2,14 +2,13 @@
 const WebSocketServer = require('websocket').server;
 const http = require('http');
 
-const server = http.createServer(function(request, response) {
+const server = http.createServer((request, response) => {
     console.log((new Date()) + ' Received request for ' + request.url);
     response.writeHead(404);
     response.end();
 });
-server.listen(8080, function() {
-    console.log((new Date()) + ' Server is listening on port 8080');
-});
+
+server.listen(8080, console.log(`${new Date()} Server is listening on port 8080`));
 
 wsServer = new WebSocketServer({
     httpServer: server,
@@ -21,20 +20,18 @@ wsServer = new WebSocketServer({
     autoAcceptConnections: false
 });
 
-function originIsAllowed(origin) {
-  // put logic here to detect whether the specified origin is allowed.
-  return true;
-}
+const originIsAllowed = (origin) => { return true };
 
-wsServer.on('request', function(request) {
+wsServer.on('request', (request) => {
+
     if (!originIsAllowed(request.origin)) {
       // Make sure we only accept requests from an allowed origin
       request.reject();
-      console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
+      console.log((`${new Date()} Connection from origin ${request.origin} rejected.`));
       return;
     }
 
-    var connection = request.accept('echo-protocol', request.origin);
+    const connection = request.accept('echo-protocol', request.origin);
     console.log((new Date()) + ' Connection accepted.');
     connection.on('message', function(message) {
         if (message.type === 'utf8') {
@@ -47,6 +44,6 @@ wsServer.on('request', function(request) {
         }
     });
     connection.on('close', function(reasonCode, description) {
-        console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
+        console.log((`${new Date()} Peer ${connection.remoteAddress} disconnected.`));
     });
 });
