@@ -32,7 +32,7 @@ wsServer.on('request', (request) => {
     }
 
     const connection = request.accept('echo-protocol', request.origin);
-    console.log((new Date()) + ' Connection accepted.');
+    console.log(`{new Date()} Connection accepted.`);
     connection.on('message', function(message) {
         if (message.type === 'utf8') {
             console.log(`Received Message: ${message.utf8Data}`);
@@ -44,6 +44,6 @@ wsServer.on('request', (request) => {
         }
     });
     connection.on('close', function(reasonCode, description) {
-        console.log((`${new Date()} Peer ${connection.remoteAddress} disconnected.`));
+        console.log(`${new Date()} Peer ${connection.remoteAddress} disconnected.`);
     });
 });
