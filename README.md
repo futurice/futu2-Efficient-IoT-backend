@@ -1,4 +1,4 @@
-# Futu_2 
+# Futu_2 Node.js app
 
 ## Backend for sensors and clients
   
@@ -11,4 +11,4 @@
 2. Start server: ```npm start```
 
 ### Other commands
-- To start server and watch changes:```npm run watch```
+- To start server and watch changes: ```npm run watch```
