@@ -2,14 +2,15 @@
   "name": "y",
   "version": "0.0.1",
   "description": "Backend for handling communication between clients and sensors",
-  "main": "y",
+  "main": "futu_2-backend-server",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "node_modules/eslint/bin/eslint.js -c .eslintrc  ./*.js",
+    "watch": "npm run lint & npm start",
+    "start": "node index.js"
   },
   "keywords": [
     "IoT"
   ],
-  "author": "",
   "license": "ISC",
   "dependencies": {
     "eslint": "^1.9.0",
