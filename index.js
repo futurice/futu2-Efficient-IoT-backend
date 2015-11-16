@@ -20,9 +20,9 @@ wsServer = new WebSocketServer({
     autoAcceptConnections: false
 });
 
-const originIsAllowed = (origin) => { return true };
+const originIsAllowed = origin => { return true };
 
-wsServer.on('request', (request) => {
+wsServer.on('request', request => {
 
     if (!originIsAllowed(request.origin)) {
       // Make sure we only accept requests from an allowed origin
@@ -33,7 +33,7 @@ wsServer.on('request', (request) => {
 
     const connection = request.accept('echo-protocol', request.origin);
     console.log(`{new Date()} Connection accepted.`);
-    connection.on('message', function(message) {
+    connection.on('message', message => {
         if (message.type === 'utf8') {
             console.log(`Received Message: ${message.utf8Data}`);
             connection.sendUTF(message.utf8Data);
