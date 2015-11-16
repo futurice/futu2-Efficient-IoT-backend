@@ -6,12 +6,9 @@
 - Node.js 4.1 [node.js homepage](https://nodejs.org/en/)
 
 ### Setup
-1. Install dependencies:<br/>
- ```npm install```
+1. Install dependencies:```npm install```
 
-2. Start server: <br/>
-```npm start```
+2. Start server: ```npm start```
 
 ### Other commands
-- To start server and watch changes:<br/>
-```npm run watch```
+- To start server and watch changes:```npm run watch```
