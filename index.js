@@ -28,6 +28,7 @@ app.use((req, res, next) => {
 app.io = socketIO();
 
 app.io.on('connection', socket => {
+  console.log(socket);
   console.log('user connected');
 });
 
@@ -38,9 +39,9 @@ app.io.on('connection', socket => {
     app.io.emit('user', msg);
   });
 
-  socket.on('new message', msg => {
-    console.log('new message:', msg);
-    app.io.emit('new message', msg);
+  socket.on('newmessage', msg => {
+    console.log('newmessage:', msg);
+    app.io.emit('newmessage', msg);
   });
 
   socket.on('disconnect', () => console.log('user disconnected'));
