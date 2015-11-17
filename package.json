@@ -4,9 +4,10 @@
   "description": "Backend for handling communication between clients and sensors",
   "main": "futu_2-backend-server",
   "scripts": {
+    "jscs": "node_modules/jscs/bin/jscs  ./*.js",
     "lint": "node_modules/eslint/bin/eslint.js -c .eslintrc  ./*.js",
-    "watch": "npm run lint & nodemon index.js",
-    "start": "node index.js"
+    "start": "nodemon ./bin/www",
+    "watch": "npm run lint & npm run jscs & npm start"
   },
   "keywords": [
     "IoT"
