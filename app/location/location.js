@@ -6,27 +6,35 @@ exports.listen = function listen(socket) {
 
   const deviceStream =
     Rx.Observable
-      .fromEventPattern(h => socket.on('beacon', h));
+      .create(observer => {
+        socket.on('beacon', (beacon) => observer.onNext(beacon));
+      }).publish();
 
-  deviceStream
+  deviceStream.connect();
+
+  const formatter =
+    Rx.Observable
+      .create(observer => {
+        var arr = [];
+        deviceStream
+          .subscribe(function (device) {
+            var a = arr.filter(d => {
+              return d.id !== device.id;
+            })
+            arr = a;
+            arr.push(device)
+            if(arr.length === 3) {
+              observer.onNext(arr.slice(-3))
+            }
+          })
+      }).publish();
+
+  formatter.connect();
+
+  formatter
     .subscribe(
-      function (device) {
-        var index = devices.findIndex(d => d.id === device.id);
-        if (index !== -1) {
-          devices[index] = device;
-        } else {
-          devices.push(device);
-        }
-        if (devices.length === 3) {
-          var pos = calculatePosition(devices);
-          socket.emit('location', pos);
-        }
-      },
-      function (err) {
-        console.log('Error: ' + err);
-      },
-      function () {
-        console.log('Completed');
+      function (devices) {
+        return socket.emit('location', calculatePosition(devices))
       }
     );
 };
