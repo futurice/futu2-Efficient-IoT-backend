@@ -32,16 +32,16 @@
 
   $('document').ready(function(){
     $('.new-distance').keyup(function () {
-      var beacons = []
+        var val = $(this).val();
 
-      $('.new-distance').each(function(i, el) {
-        var val = $(el).val();
-        beacons.push({
-            id: $(el).data('id'),
-            distance: val === "" ? 0 : parseInt(val)
-        })
+      console.log({
+          id: $(this).data('id'),
+          distance: val === "" ? 0 : parseInt(val)
       });
-      socket.emit('listenToBeacons', beacons);
+      socket.emit('beacon', {
+          id: $(this).data('id'),
+          distance: val === "" ? 0 : parseInt(val)
+      });
     });
 
   });

@@ -2,16 +2,30 @@ const Rx = require('rx');
 const { beacons } = require('../../config/config');
 
 exports.listen = function listen(socket) {
-	const locations = Rx.Observable.fromEventPattern(h => socket.on('listenToBeacons', h));
-	locations.subscribe(closeByObjects => socket.emit('location', calculatePosition(closeByObjects)))
+	const deviceStream =
+		Rx.Observable
+			.fromEventPattern(h => socket.on('beacon', h))
+			.takeLast(3)
+			.toArray();
+
+	deviceStream.subscribe(
+		function (devices) {
+			socket.emit('location', calculatePosition(devices))
+	 	},
+	 	function (err) {
+			 console.log('Error: ' + err);
+	 	},
+	 	function () {
+			 console.log('Completed');
+	 	}
+	);
 }
 
-function calculatePosition(objectsCloseBy) {
-	const objects = objectsCloseBy.map(getLocation);
-	return calculate(objects);
+function calculatePosition (devices) {
+	const devicesWithLocation = devices.map(mapDeviceLocation);
+	return calculate(devicesWithLocation);
 }
-
-function getLocation(obj) {
+function mapDeviceLocation(obj) {
 	const [found] = beacons.filter(b => b.id === obj.id);
 	return Object.assign(obj, {
 		x: found.x,
@@ -23,7 +37,7 @@ function getLocation(obj) {
  http://everything2.com/title/Triangulate
  http://stackoverflow.com/questions/20332856/triangulate-example-for-ibeacons#answer-20976803
 */
-function calculate(objects) {
+function calculate (objects) {
 	let [obj, obj2, obj3] = objects;
 	const W = Math.pow(obj.distance, 2) - Math.pow(obj2.distance, 2) - Math.pow(obj.x, 2) - Math.pow(obj.y, 2) + Math.pow(obj2.x, 2) + Math.pow(obj2.y, 2);
 	const Z = Math.pow(obj2.distance, 2) - Math.pow(obj3.distance, 2) - Math.pow(obj2.x, 2) - Math.pow(obj2.y, 2) + Math.pow(obj3.x, 2) + Math.pow(obj3.y, 2);
@@ -36,7 +50,7 @@ function calculate(objects) {
 	};
 }
 
-function defaultOnInvalid(result) {
+function defaultOnInvalid (result) {
 	const isNotValid = (x) => isNaN(x) || x + x === x; // infinity + infinity = infinity
 	return isNotValid(result) ? 0 : result;
 }
