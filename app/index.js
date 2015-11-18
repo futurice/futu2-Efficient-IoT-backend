@@ -26,6 +26,7 @@ app.use((req, res, next) => {
 
 app.io = socketIO();
 
+/*
 app.io.use((socket, next) => {
 	if (socket.handshake.query.email) {
 		next();
@@ -34,6 +35,7 @@ app.io.use((socket, next) => {
 		next(new Error('Authentication error'));
 	}
 });
+*/
 
 app.io.on('error', () => console.log('user connection failed'));
 
