@@ -28,22 +28,17 @@
   </div>
 </nav>
 <script>
-  var socket = io.connect('http://localhost:8080?email=moss.aaaom');
+  var host = window.location.protocol + '//' + window.location.host;
+  var socket = io.connect(host);
 
   $('document').ready(function(){
     $('.new-distance').keyup(function () {
         var val = $(this).val();
-
-      console.log({
-          id: $(this).data('id'),
-          distance: val === "" ? 0 : parseInt(val)
-      });
-      socket.emit('beacon', {
-          id: $(this).data('id'),
-          distance: val === "" ? 0 : parseInt(val)
-      });
+         socket.emit('beacon', {
+            id: $(this).data('id'),
+            distance: val === "" ? 0 : parseInt(val)
+        });
     });
-
   });
 
   socket.on('location', function(msg){

@@ -26,17 +26,6 @@ app.use((req, res, next) => {
 
 app.io = socketIO();
 
-/*
-app.io.use((socket, next) => {
-	if (socket.handshake.query.email) {
-		next();
-	}
-	else {
-		next(new Error('Authentication error'));
-	}
-});
-*/
-
 app.io.on('error', () => console.log('user connection failed'));
 
 app.io.on('connection', socket => {
@@ -44,6 +33,7 @@ app.io.on('connection', socket => {
 	location.listen(socket);
 
 	socket.on('disconnect', () => console.log('user disconnected'));
+
 });
 
 module.exports = app;

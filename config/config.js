@@ -15,6 +15,6 @@ exports.beacons = [
       id: 'futu-b3-21061-29133',
       type: 'Room Beacon',
       x: 3,
-      y: 4
+      y: 3
     }
   ];

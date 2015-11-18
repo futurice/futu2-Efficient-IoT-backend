@@ -12,14 +12,15 @@ exports.listen = function listen(socket) {
     .subscribe(
       function (device) {
         var index = devices.findIndex(d => d.id === device.id);
-          if (index !== -1) {
-            devices[index] = device;
-          } else {
-            devices.push(device);
-          }
-          if(devices.length === 3) {
-            socket.emit('location', calculatePosition(devices));
-          }
+        if (index !== -1) {
+          devices[index] = device;
+        } else {
+          devices.push(device);
+        }
+        if(devices.length === 3) {
+          var pos = calculatePosition(devices);
+          socket.emit('location', pos);
+        }
       },
       function (err) {
          console.log('Error: ' + err);
@@ -36,10 +37,11 @@ function calculatePosition (devices) {
 }
 function mapDeviceLocation(obj) {
 	const [found] = beacons.filter(b => b.id === obj.id);
-	return Object.assign(obj, {
+	return {
 		x: found.x,
-		y: found.y
-	});
+    y: found.y,
+    distance: obj.distance
+  };
 }
 
 /*
