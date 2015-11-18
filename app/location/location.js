@@ -2,24 +2,33 @@ const Rx = require('rx');
 const { beacons } = require('../../config/config');
 
 exports.listen = function listen(socket) {
+  var devices = [];
+
 	const deviceStream =
 		Rx.Observable
-			.fromEventPattern(h => socket.on('beacon', h))
-			.takeLast(3)
-			.toArray();
+			.fromEventPattern(h => socket.on('beacon', h));
 
-	deviceStream.subscribe(
-		function (devices) {
-			socket.emit('location', calculatePosition(devices))
-	 	},
-	 	function (err) {
-			 console.log('Error: ' + err);
-	 	},
-	 	function () {
-			 console.log('Completed');
-	 	}
+	deviceStream
+    .subscribe(
+      function (device) {
+        var index = devices.findIndex(d => d.id === device.id);
+          if (index !== -1) {
+            devices[index] = device;
+          } else {
+            devices.push(device);
+          }
+          if(devices.length === 3) {
+            socket.emit('location', calculatePosition(devices));
+          }
+      },
+      function (err) {
+         console.log('Error: ' + err);
+      },
+      function () {
+         console.log('Completed');
+      }
 	);
-}
+};
 
 function calculatePosition (devices) {
 	const devicesWithLocation = devices.map(mapDeviceLocation);
