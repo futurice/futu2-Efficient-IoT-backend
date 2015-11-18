@@ -16,33 +16,32 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use('/', routes);
-app.use((err) => {
-  logger('error:' + err.message);
-});
+app.use((err) => { logger('error:' + err.message); });
 
 app.use((req, res, next) => {
-  const err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+	const err = new Error('Not Found');
+	err.status = 404;
+	next(err);
 });
 
 app.io = socketIO();
 
 app.io.use((socket, next) => {
-  if (socket.handshake.query.email) {
-    next();
-  } else {
-    next(new Error('Authentication error'));
-  }
+	if (socket.handshake.query.email) {
+		next();
+	}
+	else {
+		next(new Error('Authentication error'));
+	}
 });
 
 app.io.on('error', () => console.log('user connection failed'));
 
 app.io.on('connection', socket => {
 
-  location.listen(socket);
+	location.listen(socket);
 
-  socket.on('disconnect', () => console.log('user disconnected'));
+	socket.on('disconnect', () => console.log('user disconnected'));
 });
 
 module.exports = app;
