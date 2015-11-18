@@ -1,20 +1,20 @@
 exports.beacons = [
     {
       id: 1,
-      type: 'Single Toilet Smart Beacon',
+      type: 'Room Beacon',
       x: 1,
       y: 1
     },
     {
       id: 2,
-      type: 'Room Smart Beacon',
+      type: 'Room Beacon',
       x: 3,
-      y: 3
+      y: 1
     },
     {
       id: 3,
-      type: 'Table Sensor',
-      x: 1,
-      y: 3
+      type: 'Room Beacon',
+      x: 3,
+      y: 4
     }
   ];
