@@ -5,9 +5,7 @@ const path = require('path');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
 const routes = require('./routes/index');
-const grid = require('./grid/grid');
-const { beacons } = require('./config');
-
+const location = require('./location/location');
 const app = express();
 
 // view engine setup
@@ -18,7 +16,7 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use('/', routes);
-app.use((err, req, res, next) => {
+app.use((err) => {
   logger('error:' + err.message);
 });
 
@@ -29,9 +27,6 @@ app.use((req, res, next) => {
 });
 
 app.io = socketIO();
-
-const sgrid = grid.create(10,4);
-console.log(grid.position(sgrid, [{ id:1, distance: 2.3 }, { id:2, distance: 2.3 }], beacons));
 
 app.io.use((socket, next) => {
   if (socket.handshake.query.email) {
@@ -45,15 +40,9 @@ app.io.on('error', () => console.log('user connection failed'));
 
 app.io.on('connection', socket => {
 
-  socket.on('user', msg => app.io.emit('user', msg));
-
-  socket.on('newmessage', msg => {
-    console.log('newmessage:', msg);
-    app.io.emit('newmessage', msg);
-  });
+  location.listen(socket);
 
   socket.on('disconnect', () => console.log('user disconnected'));
 });
 
 module.exports = app;
-
