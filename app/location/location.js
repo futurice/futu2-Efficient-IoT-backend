@@ -1,5 +1,5 @@
 const Rx = require('rx');
-const { beacons } = require('../config');
+const { beacons } = require('../../config/config');
 
 exports.listen = function listen(socket) {
 	const locations = Rx.Observable.fromEventPattern(h => socket.on('listenToBeacons', h));

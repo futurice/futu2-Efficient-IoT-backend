@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 
-const app = require('../index');
+const app = require('../app/index');
 const debug = require('debug')('futu2_backend:server');
 const http = require('http');
 
