@@ -2,16 +2,6 @@
   <title><%= title %></title>
   <script src="/socket.io/socket.io.js"></script>
   <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
-  <script>
-    var socket = io.connect('http://localhost:8080?email=moss.aaaom');
-    function sendFunction() {
-      socket.emit('newmessage', $('#new-message').val());
-      $('#new-message').val('');
-    }
-    socket.on('chat message', function(msg){
-      $('#messages-area').append($('<li>').text(msg));
-    });
-  </script>
 </head>
 <body>
 <div class="container-fluid">
@@ -21,7 +11,7 @@
 
   <div class="row">
     <div class="col-sm-12">
-      <ul id="messages-area" class="list-group"></ul>
+      <div id="messages-area"></div>
     </div>
   </div>
 </div>
@@ -30,10 +20,34 @@
   <div class="container-fluid">
     <form class="navbar-form" id="form" onsubmit="return false;">
       <div class="form-group"  style="width:83%">
-        <input id="new-message" type="text" class="form-control" placeholder="Search" style="width:100%">
+        <input class="new-distance" data-id="1" type="number" class="form-control" placeholder="Search" style="width:100%">
+        <input class="new-distance" data-id="2" type="number" class="form-control" placeholder="Search" style="width:100%">
+        <input class="new-distance" data-id="3" type="number" class="form-control" placeholder="Search" style="width:100%">
       </div>
-      <button type="submit" class="btn ban-primary" onclick="sendFunction()" style="width:16%">Send</button>
     </form>
   </div>
 </nav>
+<script>
+  var socket = io.connect('http://localhost:8080?email=moss.aaaom');
+
+  $('document').ready(function(){
+    $('.new-distance').keyup(function () {
+      var beacons = []
+
+      $('.new-distance').each(function(i, el) {
+        var val = $(el).val();
+        beacons.push({
+            id: $(el).data('id'),
+            distance: val === "" ? 0 : parseInt(val)
+        })
+      });
+      socket.emit('listenToBeacons', beacons);
+    });
+
+  });
+
+  socket.on('location', function(msg){
+    $('#messages-area').text('x:' + msg.x + ' y:' + msg.y);
+  });
+</script>
 </body>
