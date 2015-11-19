@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "Backend for handling communication between clients and sensors",
   "main": "futu_2-backend-server",
+  "engines": {
+    "node": "4.1.1"
+  },
   "scripts": {
     "watch-files": "node_modules/.bin/chokidar 'app/**/*.js' 'tests/**/*.js'",
     "babel-node": "./node_modules/node-babel/node_modules/.bin/babel-node",
