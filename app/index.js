@@ -6,6 +6,7 @@ const logger = require('morgan');
 const bodyParser = require('body-parser');
 const routes = require('./routes/index');
 const location = require('./location/location');
+const Rx = require('rx');
 const app = express();
 
 // view engine setup
@@ -32,7 +33,15 @@ app.io.on('error', () => console.log('user connection failed'));
 
 app.io.on('connection', socket => {
 
-  location.listen(socket);
+  var deviceStream =
+    Rx.Observable
+      .create(observer => socket.on('beacon', (beacon) => observer.onNext(beacon)));
+
+  location
+    .fromDeviceStream(deviceStream)
+    .subscribe(
+        location =>  socket.emit('location', location),
+        error => console.log(`location stream error:${error}`));
 
   socket.on('disconnect', () => console.log('user disconnected'));
 

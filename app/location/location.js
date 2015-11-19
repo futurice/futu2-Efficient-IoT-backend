@@ -1,55 +1,25 @@
-const Rx = require('rx');
+const _ = require('underscore');
 const { beacons } = require('../../config/config');
 
-exports.listen = function listen(socket) {
-  var devices = [];
+const findIndexById = (arr, id) => arr.findIndex(x => x && x.id === id);
+const isValidNumber = (x) => !(isNaN(x) || x + x === x);
+const curryCalculate = calculate([]);
 
-  const deviceStream =
-    Rx.Observable
-      .create(observer => {
-        socket.on('beacon', (beacon) => observer.onNext(beacon));
-      }).publish();
-
-  deviceStream.connect();
-
-  const formatter =
-    Rx.Observable
-      .create(observer => {
-        var arr = [];
-        deviceStream
-          .subscribe(function (device) {
-            var a = arr.filter(d => {
-              return d.id !== device.id;
-            })
-            arr = a;
-            arr.push(device)
-            if(arr.length === 3) {
-              observer.onNext(arr.slice(-3))
-            }
-          })
-      }).publish();
-
-  formatter.connect();
-
-  formatter
-    .subscribe(
-      function (devices) {
-        return socket.emit('location', calculatePosition(devices))
-      }
-    );
+exports.fromDeviceStream = function listen(stream) {
+  return stream
+    .map(mapDeviceLocation)
+    .map(curryCalculate)
 };
 
-function calculatePosition(devices) {
-  const devicesWithLocation = devices.map(mapDeviceLocation);
-  return calculate(devicesWithLocation);
-}
+function mapDeviceLocation(device) {
+  const index = findIndexById(beacons, device.id);
+  const beacon = beacons[index];
 
-function mapDeviceLocation(obj) {
-  const [found] = beacons.filter(b => b.id === obj.id);
   return {
-    x: found.x,
-    y: found.y,
-    distance: obj.distance
+    id: device.id,
+    distance: device.distance,
+    x: beacon.x,
+    y: beacon.y
   };
 }
 
@@ -57,7 +27,35 @@ function mapDeviceLocation(obj) {
  http://everything2.com/title/Triangulate
  http://stackoverflow.com/questions/20332856/triangulate-example-for-ibeacons#answer-20976803
  */
-function calculate(objects) {
+function calculate(initialObjects) {
+  const DEFAULT = {
+    x: 0,
+    y: 0
+  };
+
+  var arr = initialObjects;
+
+  return function (device) {
+    arr =
+      arr
+        .filter(obj => obj.id !== device.id)
+        .concat([device])
+        .slice(-3);
+
+    if (arr.length < 3) {
+      return DEFAULT;
+    }
+
+    const { x, y } = calculatePosition(arr, DEFAULT);
+
+    return {
+      x: isValidNumber(x) && x || 0,
+      y: isValidNumber(y) && y || 0
+    };
+  }
+}
+
+function calculatePosition(objects){
   let [obj, obj2, obj3] = objects;
   const W = Math.pow(obj.distance, 2) - Math.pow(obj2.distance, 2) - Math.pow(obj.x, 2) - Math.pow(obj.y, 2) + Math.pow(obj2.x, 2) + Math.pow(obj2.y, 2);
   const Z = Math.pow(obj2.distance, 2) - Math.pow(obj3.distance, 2) - Math.pow(obj2.x, 2) - Math.pow(obj2.y, 2) + Math.pow(obj3.x, 2) + Math.pow(obj3.y, 2);
@@ -65,12 +63,7 @@ function calculate(objects) {
   const y = (W - 2 * x * (obj2.x - obj.x)) / (2 * (obj2.y - obj.y));
 
   return {
-    x: defaultOnInvalid(x),
-    y: defaultOnInvalid(y)
+    x: x,
+    y: y
   };
-}
-
-function defaultOnInvalid(result) {
-  const isNotValid = (x) => isNaN(x) || x + x === x; // infinity + infinity = infinity
-  return isNotValid(result) ? 0 : result;
 }
