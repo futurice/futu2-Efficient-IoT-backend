@@ -32,6 +32,7 @@
     "ejs": "^2.3.4",
     "express": "^4.13.3",
     "morgan": "^1.6.1",
+    "node-babel": "^0.1.2",
     "nodemon": "^1.8.1",
     "npm-build-tools": "^2.2.5",
     "rx": "^4.0.7",
@@ -41,7 +42,6 @@
   "devDependencies": {
     "eslint": "^1.9.0",
     "jscs": "^2.5.1",
-    "node-babel": "^0.1.2",
     "nodemon": "^1.8.1",
     "tape": "^4.2.2"
   }
