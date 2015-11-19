@@ -1,4 +1,3 @@
-const _ = require('underscore');
 const { beacons } = require('../../config/config');
 
 const findIndexById = (arr, id) => arr.findIndex(x => x && x.id === id);
