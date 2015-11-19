@@ -11,7 +11,7 @@ exports.fromDeviceStream = stream => {
 function splitInToBeaconStreams(stream, beacons) {
   return beacons.map(beacon => {
       return stream
-        .filter(s => !(s.floor) || s.floor !== 7 ) // TODO: remove this debugging code. Used before we had floor in beacon event.
+        .filter(s => !(s.floor) || s.floor === beacon.floor) // FIXME: remove !(s.floor) condition. Used before we had floor in beacon event.
         .filter(s => s.id === beacon.id)
         .map(device => mapDeviceLocation(device, beacon));
     });
