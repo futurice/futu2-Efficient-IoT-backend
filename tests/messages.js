@@ -1,4 +1,4 @@
-const location = require('../app/bin/www');
+const app = require('../app/bin/www');
 const io = require('socket.io-client');
 const socketURL = 'http://0.0.0.0:8080';
 const should = require('should');

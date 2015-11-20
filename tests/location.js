@@ -1,4 +1,4 @@
-const location = require('../app/bin/www');
+const app = require('../app/bin/www');
 const io = require('socket.io-client');
 const socketURL = 'http://0.0.0.0:8080';
 const should = require('should');
@@ -20,7 +20,7 @@ describe("App", () => {
 
     /*
      Beacon locations (1,2,3) are in config/test.json
-     Location is should be in the center: 2,2
+     Location should be in the center: 2,2
      +---+---+---+
      |   |   |   |
      | 1 |   | 2 |
