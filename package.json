@@ -24,7 +24,6 @@
   ],
   "license": "ISC",
   "dependencies": {
-    "//": "// The api of babel changes drastically in 6.0 hence the frozen version",
     "babel": "5.8.23",
     "body-parser": "^1.14.1",
     "debug": "^2.2.0",
