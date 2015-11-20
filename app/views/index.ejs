@@ -1,0 +1,48 @@
+<head>
+  <title><%= title %></title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+</head>
+<body>
+<div class="container-fluid">
+  <div class="page-header">
+    <h1><%= title %> <small>Welcome to <%= title %></small></h1>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-12">
+      <div id="messages-area"></div>
+    </div>
+  </div>
+</div>
+
+<nav class="navbar navbar-default navbar-fixed-bottom">
+  <div class="container-fluid">
+    <form class="navbar-form" id="form" onsubmit="return false;">
+      <div class="form-group"  style="width:83%">
+        <input class="new-distance" data-id="futu-b1-32095-19454" type="number" class="form-control" placeholder="Search" style="width:100%">
+        <input class="new-distance" data-id="futu-b2-23964-38945" type="number" class="form-control" placeholder="Search" style="width:100%">
+        <input class="new-distance" data-id="futu-b3-21061-29133" type="number" class="form-control" placeholder="Search" style="width:100%">
+      </div>
+    </form>
+  </div>
+</nav>
+<script>
+  var host = window.location.protocol + '//' + window.location.host;
+  var socket = io.connect(host);
+
+  $('document').ready(function(){
+    $('.new-distance').keyup(function () {
+        var val = $(this).val();
+         socket.emit('beacon', {
+            id: $(this).data('id'),
+            distance: val === "" ? 0 : parseInt(val)
+        });
+    });
+  });
+
+  socket.on('location', function(msg){
+    $('#messages-area').text('x:' + msg.x + ' y:' + msg.y);
+  });
+</script>
+</body>
