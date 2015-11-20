@@ -25,8 +25,8 @@ describe("App", () => {
 
     clientListening.on('stream', message => {
       should(message).deepEqual(messageContent);
-      done();
       clientListening.disconnect();
+      done();
     });
 
   });
