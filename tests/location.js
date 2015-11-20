@@ -19,10 +19,11 @@ describe("App", () => {
     const client = io.connect(socketURL, options);
 
     /*
+     Beacon locations (1,2,3) are in config/test.json
      Location is should be in the center: 2,2
      +---+---+---+
      |   |   |   |
-     | 2 |   | 3 |
+     | 1 |   | 2 |
      |   |   |   |
      +-----------+
      |   |   |   |
@@ -30,7 +31,7 @@ describe("App", () => {
      |   |   |   |
      +-----------+
      |   |   |   |
-     | 1 |   |   |
+     | 3 |   |   |
      |   |   |   |
      +---+---+---+
      */
@@ -47,5 +48,7 @@ describe("App", () => {
       done();
       client.disconnect();
     });
+
   });
+
 });
