@@ -42,7 +42,7 @@
     "new-cap": 0,
     "no-loop-func": 1,
     "no-unreachable": 1,
-    "no-process-exit": 1,
+    "no-process-exit": 0,
     "quotes": [1, "single", "avoid-escape"]
   },
   "env": {
