@@ -33,18 +33,35 @@ app.io.on('error', () => console.log('user connection failed'));
 
 app.io.on('connection', socket => {
 
-  var deviceStream =
-    Rx.Observable
-      .create(observer => socket.on('beacon', (beacon) => observer.onNext(beacon)));
+  locateUser(socket);
 
-  location
-    .fromDeviceStream(deviceStream)
-    .subscribe(
-        location => socket.emit('location', location),
-        error => console.log(`location stream error:${error}`));
+  publishStream(socket);
 
   socket.on('disconnect', () => console.log('user disconnected'));
 
 });
+
+const locateUser = (socket) => {
+  const deviceStream =
+    Rx.Observable
+      .create(observer => socket.on('beacon', beacon => observer.onNext(beacon)));
+
+  location
+    .fromDeviceStream(deviceStream)
+    .subscribe(
+      location => socket.emit('location', location),
+      error => console.log(`location stream error:${error}`));
+};
+
+const publishStream = (socket) => {
+  const messageStream =
+    Rx.Observable
+      .create(observer => socket.on('message', message => observer.onNext(message)));
+
+  messageStream
+    .subscribe(
+      stream => app.io.emit('stream', stream),
+      error => console.log(`Stream error:${error}`));
+};
 
 module.exports = app;

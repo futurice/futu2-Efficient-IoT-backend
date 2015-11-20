@@ -6,27 +6,41 @@
 <body>
 <div class="container-fluid">
   <div class="page-header">
-    <h1><%= title %> <small>Welcome to <%= title %></small></h1>
+    <h1><%= title %></h1>
   </div>
-
-  <div class="row">
-    <div class="col-sm-12">
-      <div id="messages-area"></div>
-    </div>
-  </div>
-</div>
-
-<nav class="navbar navbar-default navbar-fixed-bottom">
   <div class="container-fluid">
-    <form class="navbar-form" id="form" onsubmit="return false;">
+    <div class="row">
+      <div class="col-sm-12">
+        <h2>Location</h2>
+        <p id="location">No location</p>
+      </div>
+    </div>
+    <form class="form" id="form" onsubmit="return false;">
       <div class="form-group"  style="width:83%">
-        <input class="new-distance" data-id="futu-b1-32095-19454" type="number" class="form-control" placeholder="Search" style="width:100%">
-        <input class="new-distance" data-id="futu-b2-23964-38945" type="number" class="form-control" placeholder="Search" style="width:100%">
-        <input class="new-distance" data-id="futu-b3-21061-29133" type="number" class="form-control" placeholder="Search" style="width:100%">
+        <input class="new-distance" data-id="futu-b1-32095-19454" type="number" class="form-control" placeholder="Beacon1 distance" style="width:100%">
+        <input class="new-distance" data-id="futu-b2-23964-38945" type="number" class="form-control" placeholder="Beacon2 distance" style="width:100%">
+        <input class="new-distance" data-id="futu-b3-21061-29133" type="number" class="form-control" placeholder="Beacon3 distance" style="width:100%">
+      </div>
+    </form>
+
+    <div class="row">
+      <div class="col-sm-12">
+        <h2>Other messages</h2>
+        <p id="message">No message</p>
+      </div>
+    </div>
+    <form class="navbar-form" id="form2" onsubmit="return false;">
+      <div class="form-group"  style="width:83%">
+        <select id="message-type">
+          <option value="toilet">toilet</option>
+          <option value="cake">cake</option>
+          <option value="cafe">cafe</option>
+        </select>
+        <input id="message-value" type="text" class="form-control" placeholder="Value" style="width:100%">
       </div>
     </form>
   </div>
-</nav>
+</div>
 <script>
   var host = window.location.protocol + '//' + window.location.host;
   var socket = io.connect(host);
@@ -39,10 +53,26 @@
             distance: val === "" ? 0 : parseInt(val)
         });
     });
-  });
 
-  socket.on('location', function(msg){
-    $('#messages-area').text('x:' + msg.x + ' y:' + msg.y);
+    socket.on('location', function(msg){
+      $('#location').text('x:' + msg.x + ' y:' + msg.y);
+    });
+
+    $('#message-type, #message-value').change(updateMessge);
+
+    function updateMessge () {
+      var type = $('#message-type').val();
+      var value = $('#message-value').val();
+      socket.emit('message', {
+        type: type,
+        value: value
+      });
+    }
+
+    socket.on('stream', function(msg){
+      $('#message').text('type:' + msg.type + ' value:' + msg.value);
+    });
+
   });
 </script>
 </body>
