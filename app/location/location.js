@@ -1,5 +1,5 @@
 const Rx = require('rx');
-const { beacons } = require('../../config/config');
+const { beacons } = require('../../config/index.js');
 
 exports.fromDeviceStream = stream => {
   const beaconStreams = splitInToBeaconStreams(stream, beacons);
@@ -8,8 +8,6 @@ exports.fromDeviceStream = stream => {
 
 function splitInToBeaconStreams(stream, beacons) {
   return beacons.map(beacon => {
-
-
       return stream
         .filter(s => !(s.floor) || s.floor === beacon.floor) // FIXME: remove !(s.floor) condition.
         .filter(s => s.id === beacon.id)

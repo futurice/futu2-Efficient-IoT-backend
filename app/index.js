@@ -40,7 +40,7 @@ app.io.on('connection', socket => {
   location
     .fromDeviceStream(deviceStream)
     .subscribe(
-        location =>  socket.emit('location', location),
+        location => socket.emit('location', location),
         error => console.log(`location stream error:${error}`));
 
   socket.on('disconnect', () => console.log('user disconnected'));
