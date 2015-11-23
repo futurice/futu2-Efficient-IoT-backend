@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+const { stream } = require('../config/index.js');
 const express = require('express');
 const socketIO = require('socket.io');
 const path = require('path');
@@ -28,31 +29,23 @@ app.use((req, res, next) => {
 });
 
 app.io = socketIO();
-
 app.io.on('error', () => console.log('user connection failed'));
 
-app.io.on('connection', socket => {
+const observableFromEvent = event => socket => Rx.Observable.fromEvent(socket, event);
+const connectionSource = observableFromEvent('connection')(app.io.sockets);
+const beaconSource = connectionSource.flatMap(observableFromEvent('beacon'));
+const messageSource = connectionSource.flatMap(observableFromEvent('message'));
 
-  const deviceStream =
-    Rx.Observable
-      .create(observer => socket.on('beacon', beacon => observer.onNext(beacon)));
-
-  location
-    .fromDeviceStream(deviceStream)
+location.fromDeviceStream(beaconSource)
     .subscribe(
       location => app.io.emit('location', location),
       error => console.log(`location stream error:${error}`));
 
-  const messageStream =
-      Rx.Observable
-        .create(observer => socket.on('message', message => observer.onNext(message)));
+messageSource
+  .bufferWithTime(stream.interval)
+  .subscribeOnNext(
+    messages => app.io.emit('stream', messages),
+    error => console.log(`Stream error:${error}`));
 
-  messageStream
-    .subscribe(
-      stream => app.io.emit('stream', stream),
-      error => console.log(`Stream error:${error}`));
-
-  socket.on('disconnect', () => console.log('user disconnected'));
-});
 
 module.exports = app;

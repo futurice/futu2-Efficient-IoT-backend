@@ -1,4 +1,7 @@
 {
+  "stream": {
+    "interval": 100
+  },
   "beacons": [
     {
       "id": 1,
