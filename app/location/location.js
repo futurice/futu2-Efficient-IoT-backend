@@ -6,21 +6,22 @@ exports.fromDeviceStream = stream => {
   return Rx.Observable.combineLatest(beaconStreams, (...results) => calculatePosition(results));
 };
 
-function splitInToBeaconStreams(stream, beacons) {
-  return beacons.map(beacon => {
+function splitInToBeaconStreams(stream, beaconsConfiguration) {
+  return beaconsConfiguration.map(beaconConfig => {
       return stream
-        .filter(s => !(s.floor) || s.floor === beacon.floor) // FIXME: remove !(s.floor) condition.
-        .filter(s => s.id === beacon.id)
-        .map(device => mapDeviceLocation(device, beacon));
+        .filter(beaconData => beaconData.floor === beaconConfig.floor)
+        .filter(beaconData => beaconData.id === beaconConfig.id)
+        .map(beaconData => mapDataWithConfig(beaconData, beaconConfig));
     });
 }
 
-function mapDeviceLocation(device, beacon) {
-  return {
-    id: device.id,
-    distance: device.distance,
-    x: beacon.x,
-    y: beacon.y
+function mapDataWithConfig(data, config) {
+ return {
+    id: data.id,
+    email: data.email,
+    distance: data.distance,
+    x: config.x,
+    y: config.y
   };
 }
 
@@ -39,6 +40,7 @@ function calculatePosition(devices) {
   const y = (W - 2 * x * (obj2.x - obj.x)) / (2 * (obj2.y - obj.y));
 
   return {
+    email: obj.email,
     x: isValidPosition(x) && x || 0,
     y: isValidPosition(y) && y || 0
   };

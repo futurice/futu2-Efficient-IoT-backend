@@ -46,16 +46,20 @@
   var socket = io.connect(host);
 
   $('document').ready(function(){
+    var timestamp = new Date().valueOf();
+
     $('.new-distance').keyup(function () {
         var val = $(this).val();
          socket.emit('beacon', {
             id: $(this).data('id'),
+            email: '' + timestamp + '@mail.com',
+            floor: 7,
             distance: val === "" ? 0 : parseInt(val)
         });
     });
 
     socket.on('location', function(msg){
-      $('#location').text('x:' + msg.x + ' y:' + msg.y);
+      $('#location').text('email:' + msg.email + ' x:' + msg.x + ' y:' + msg.y);
     });
 
     $('#message-type, #message-value').change(updateMessge);
