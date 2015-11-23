@@ -41,6 +41,7 @@
   },
   "devDependencies": {
     "babel-core": "5.8.23",
+    "bootstrap": "^3.3.5",
     "eslint": "^1.9.0",
     "jscs": "^2.5.1",
     "mocha": "^2.3.4",
