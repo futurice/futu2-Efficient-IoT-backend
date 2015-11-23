@@ -9,15 +9,16 @@ exports.fromDeviceStream = stream => {
 function splitInToBeaconStreams(stream, beacons) {
   return beacons.map(beacon => {
       return stream
-        .filter(s => !(s.floor) || s.floor === beacon.floor) // FIXME: remove !(s.floor) condition.
+        .filter(s => !(s.floor) || s.floor === beacon.floor)
         .filter(s => s.id === beacon.id)
-        .map(device => mapDeviceLocation(device, beacon));
+        .map(device => mapDeviceWithBeacon(device, beacon));
     });
 }
 
-function mapDeviceLocation(device, beacon) {
-  return {
+function mapDeviceWithBeacon(device, beacon) {
+ return {
     id: device.id,
+    name: device.name,
     distance: device.distance,
     x: beacon.x,
     y: beacon.y
@@ -39,6 +40,7 @@ function calculatePosition(devices) {
   const y = (W - 2 * x * (obj2.x - obj.x)) / (2 * (obj2.y - obj.y));
 
   return {
+    name: obj.name,
     x: isValidPosition(x) && x || 0,
     y: isValidPosition(y) && y || 0
   };

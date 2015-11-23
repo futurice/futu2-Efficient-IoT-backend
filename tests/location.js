@@ -1,33 +1,30 @@
-const app = require('../app/bin/www');
 const io = require('socket.io-client');
 const socketURL = 'http://0.0.0.0:8080';
+const app = require('../app/bin/www');
 const should = require('should');
 const options ={
   transports: ['websocket'],
   'force new connection': true
 };
 
-const beaconEvents = [
-  { id: 1, distance: 1 },
-  { id: 2, distance: 1 },
-  { id: 3, distance: 1 }
-];
-
 describe("App", () => {
 
-  it('should locate user', done => {
-    const client = io.connect(socketURL, options);
+  const CLIENT_A_LOCATION = { name: 'ClientA', x: 2, y: 2 };
+  const clientA = io.connect(socketURL, options);
+  const clientB = io.connect(socketURL, options);
 
+  it('should locate user', done => {
     /*
      Beacon locations (1,2,3) are in config/test.json
-     Location should be in the center: 2,2
+     ClientA location should be in the center: 2,2
+
      +---+---+---+
      |   |   |   |
      | 1 |   | 2 |
      |   |   |   |
      +-----------+
      |   |   |   |
-     |   | x |   |
+     |   | A |   |
      |   |   |   |
      +-----------+
      |   |   |   |
@@ -36,17 +33,23 @@ describe("App", () => {
      +---+---+---+
      */
 
-    client.on('connect', data => {
-      client.emit('beacon', beaconEvents[0]);
-      client.emit('beacon', beaconEvents[1]);
-      client.emit('beacon', beaconEvents[2]);
+    clientA.on('connect', () => {
+      clientA.emit('beacon', { name: 'ClientA', id: 1, distance: 1 });
+      clientA.emit('beacon', { name: 'ClientA', id: 2, distance: 1 });
+      clientA.emit('beacon', { name: 'ClientA', id: 3, distance: 1 });
+
+      clientA.on('location', message => {
+        should(message).deepEqual(CLIENT_A_LOCATION);
+        done();
+      });
+
+      clientA.disconnect();
     });
 
-    client.on('location', message => {
-      should(message.x).be.exactly(2);
-      should(message.y).be.exactly(2);
+    clientB.on('location', message => {
+      should(message).deepEqual(CLIENT_A_LOCATION);
+      clientB.disconnect();
       done();
-      client.disconnect();
     });
 
   });
