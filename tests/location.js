@@ -9,7 +9,7 @@ const options ={
 
 describe("App", () => {
 
-  const CLIENT_A_LOCATION = { name: 'ClientA', x: 2, y: 2 };
+  const CLIENT_A_LOCATION = { email: 'ClientA', x: 2, y: 2 };
   const clientA = io.connect(socketURL, options);
   const clientB = io.connect(socketURL, options);
 
@@ -34,9 +34,9 @@ describe("App", () => {
      */
 
     clientA.on('connect', () => {
-      clientA.emit('beacon', { name: 'ClientA', id: 1, distance: 1 });
-      clientA.emit('beacon', { name: 'ClientA', id: 2, distance: 1 });
-      clientA.emit('beacon', { name: 'ClientA', id: 3, distance: 1 });
+      clientA.emit('beacon', { email: 'ClientA', id: 1, distance: 1, floor: 1 });
+      clientA.emit('beacon', { email: 'ClientA', id: 2, distance: 1, floor: 1 });
+      clientA.emit('beacon', { email: 'ClientA', id: 3, distance: 1, floor: 1 });
 
       clientA.on('location', message => {
         should(message).deepEqual(CLIENT_A_LOCATION);

@@ -6,22 +6,22 @@ exports.fromDeviceStream = stream => {
   return Rx.Observable.combineLatest(beaconStreams, (...results) => calculatePosition(results));
 };
 
-function splitInToBeaconStreams(stream, beacons) {
-  return beacons.map(beacon => {
+function splitInToBeaconStreams(stream, beaconsConfiguration) {
+  return beaconsConfiguration.map(beaconConfig => {
       return stream
-        .filter(s => !(s.floor) || s.floor === beacon.floor)
-        .filter(s => s.id === beacon.id)
-        .map(device => mapDeviceWithBeacon(device, beacon));
+        .filter(beaconData => beaconData.floor === beaconConfig.floor)
+        .filter(beaconData => beaconData.id === beaconConfig.id)
+        .map(beaconData => mapDataWithConfig(beaconData, beaconConfig));
     });
 }
 
-function mapDeviceWithBeacon(device, beacon) {
+function mapDataWithConfig(data, config) {
  return {
-    id: device.id,
-    name: device.name,
-    distance: device.distance,
-    x: beacon.x,
-    y: beacon.y
+    id: data.id,
+    email: data.email,
+    distance: data.distance,
+    x: config.x,
+    y: config.y
   };
 }
 
@@ -40,7 +40,7 @@ function calculatePosition(devices) {
   const y = (W - 2 * x * (obj2.x - obj.x)) / (2 * (obj2.y - obj.y));
 
   return {
-    name: obj.name,
+    email: obj.email,
     x: isValidPosition(x) && x || 0,
     y: isValidPosition(y) && y || 0
   };
