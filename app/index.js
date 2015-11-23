@@ -32,10 +32,10 @@ app.use((req, res, next) => {
 app.io = socketIO();
 app.io.on('error', () => console.log('user connection failed'));
 
-const observableFromEvent = event => socket => Rx.Observable.fromEvent(socket, event);
-const connectionSource = observableFromEvent('connection')(app.io.sockets);
-const beaconSource = connectionSource.flatMap(observableFromEvent('beacon'));
-const messageSource = connectionSource.flatMap(observableFromEvent('message'));
+const observableFromSocketEvent = event => socket => Rx.Observable.fromEvent(socket, event);
+const connectionSource = observableFromSocketEvent('connection')(app.io.sockets);
+const beaconSource = connectionSource.flatMap(observableFromSocketEvent('beacon'));
+const messageSource = connectionSource.flatMap(observableFromSocketEvent('message'));
 
 location.fromDeviceStream(beaconSource)
     .subscribe(
