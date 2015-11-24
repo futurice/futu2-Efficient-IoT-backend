@@ -1,4 +1,7 @@
 {
+  "stream": {
+    "interval": 5000
+  },
   "beacons": [
     {
       "id": "futu-b1-32095-19454",

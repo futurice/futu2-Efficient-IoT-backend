@@ -1,5 +1,6 @@
 <head>
   <title><%= title %></title>
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
   <script src="/socket.io/socket.io.js"></script>
   <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
 </head>
@@ -8,37 +9,51 @@
   <div class="page-header">
     <h1><%= title %></h1>
   </div>
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-sm-12">
-        <h2>Location</h2>
-        <p id="location">No location</p>
+    <div class="container-fluid">
+      <div class="row">
+        <form class="form" id="form" onsubmit="return false;">
+          <div class="form-group">
+            <label class="col-4 control-label">Location</label>
+            <div class="input-group">
+              <input class="new-distance" data-id="futu-b1-32095-19454" type="number" class="form-control" placeholder="Beacon1 distance" style="width:100%">
+              <input class="new-distance" data-id="futu-b2-23964-38945" type="number" class="form-control" placeholder="Beacon2 distance" style="width:100%">
+              <input class="new-distance" data-id="futu-b3-21061-29133" type="number" class="form-control" placeholder="Beacon3 distance" style="width:100%">
+            </div>
+          </div>
+        </form>
+        <div id="location"><p>No location</p></div><br/><br/>
       </div>
+
+      <div class="row">
+        <form class="form" id="form2" onsubmit="return false;">
+          <div class="form-group">
+            <label for="exampleInputFile" class="col-4">Cake image</label>
+            <input type="file" id="image">
+          </div>
+        </form>
+        <div><img id="cake-image" src=""  alt="no image" class="img-rounded"></div><br/><br/>
     </div>
-    <form class="form" id="form" onsubmit="return false;">
-      <div class="form-group"  style="width:83%">
-        <input class="new-distance" data-id="futu-b1-32095-19454" type="number" class="form-control" placeholder="Beacon1 distance" style="width:100%">
-        <input class="new-distance" data-id="futu-b2-23964-38945" type="number" class="form-control" placeholder="Beacon2 distance" style="width:100%">
-        <input class="new-distance" data-id="futu-b3-21061-29133" type="number" class="form-control" placeholder="Beacon3 distance" style="width:100%">
-      </div>
-    </form>
 
     <div class="row">
-      <div class="col-sm-12">
-        <h2>Other messages</h2>
-        <p id="message">No message</p>
-      </div>
+      <form class="form" id="form2" onsubmit="return false;">
+        <div class="form-group">
+          <label class="col-4 control-label">Other messages</label>
+          <div class="input-group">
+            <select id="message-type" multiple class="form-control">
+              <option value="toilet">toilet</option>
+              <option value="cafe">cafe</option>
+            </select>
+            <br/>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="input-group">
+            <input id="message-value" type="text" class="form-control" placeholder="Value" style="width:100%">
+          </div>
+        </div>
+      </form>
+      <div id="message"><p>No location</p></div><br/><br/>
     </div>
-    <form class="navbar-form" id="form2" onsubmit="return false;">
-      <div class="form-group"  style="width:83%">
-        <select id="message-type">
-          <option value="toilet">toilet</option>
-          <option value="cake">cake</option>
-          <option value="cafe">cafe</option>
-        </select>
-        <input id="message-value" type="text" class="form-control" placeholder="Value" style="width:100%">
-      </div>
-    </form>
   </div>
 </div>
 <script>
@@ -48,7 +63,7 @@
   $('document').ready(function(){
     var timestamp = new Date().valueOf();
 
-    $('.new-distance').keyup(function () {
+    $('.new-distance').on('keyup change', function () {
         var val = $(this).val();
          socket.emit('beacon', {
             id: $(this).data('id'),
@@ -59,22 +74,62 @@
     });
 
     socket.on('location', function(msg){
-      $('#location').text('email:' + msg.email + ' x:' + msg.x + ' y:' + msg.y);
+      $('#location')
+        .html([
+          '<address>',
+          ' <strong>' + msg.email + '</strong><br/>',
+          ' <abbr>x:</abbr> ' + msg.x + '<br/>',
+          ' <abbr>y:</abbr> ' + msg.y + '<br/>',
+          '</address>'
+        ]);
     });
 
-    $('#message-type, #message-value').change(updateMessge);
-
-    function updateMessge () {
+    $('#message-type, #message-value').on('keyup change', function () {
       var type = $('#message-type').val();
       var value = $('#message-value').val();
       socket.emit('message', {
         type: type,
         value: value
       });
-    }
+    });
 
-    socket.on('stream', function(msg){
-      $('#message').text('type:' + msg.type + ' value:' + msg.value);
+    var handleFileSelect = function(evt) {
+      var files = evt.target.files;
+      var file = files[0];
+
+      if (files && file) {
+        var reader = new FileReader();
+
+        reader.onload = function(readerEvt) {
+          var binaryString = readerEvt.target.result;
+
+          socket.emit('message', {
+            type: 'cake',
+            value: btoa(binaryString)
+          });
+        };
+
+        reader.readAsBinaryString(file);
+      }
+    };
+
+    $('#image').on('change', handleFileSelect);
+
+    socket.on('stream', function(messages) {
+      $.each(messages, function(index, message){
+        console.log(message);
+        if(message.type === 'cake') {
+          $('#cake-image').attr('src', 'data:image/png;base64,' + message.value)
+        } else {
+          $('#message')
+            .html([
+              '<address>',
+              ' <strong>' + message.type + '</strong><br/>',
+              ' <abbr>value:</abbr> ' + message.value + '<br/>',
+              '</address>'
+            ]);
+        }
+      });
     });
 
   });
