@@ -4,13 +4,14 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
   <style type="text/css">
-    .code-block {
-      margin-bottom: 10px;
+    h3 {
+      margin: 3rem 0 2rem;
     }
 
-    .code-block pre {
-      display: inline-block;
-      border: 0 none;
+    .form {
+      border-bottom: 1px dashed #ccc;
+      margin-bottom: 1rem;
+      padding-bottom: 3rem;
     }
 
     .json-response pre {
@@ -22,15 +23,7 @@
     }
 
     .input-group {
-      margin-bottom: 15px;
-    }
-
-    .img-preview {
-      width: 50px;
-    }
-
-    .img-rounded {
-      max-width: 150px;
+      margin-bottom: 1.5rem;
     }
   </style>
 </head>
@@ -41,16 +34,6 @@
   </div>
   <div class="container-fluid">
     <h3>Location</h3>
-
-    <div class="code-block">
-      <p>Sample response json:</p>
-        <pre>
-          {
-            "email": "asko@mail.com",
-            "x": 1,
-            "y": 2
-          }</pre>
-    </div>
     <div class="row">
       <div class="col-md-4">
         <form class="form" id="location-form">
@@ -61,44 +44,43 @@
             </div>
             <div class="input-group">
               <span class="input-group-addon">Floor</span>
-              <input id="location-floor" type="number" class="form-control" placeholder="Default 7" value="7">
+              <input id="location-floor"
+                     type="number"
+                     class="form-control"
+                     placeholder="Default 7"
+                     value=7>
             </div>
             <div class="input-group">
               <span class="input-group-addon">Beacon 1</span>
-              <input class="form-control new-distance" data-id="futu-b1-32095-19454" type="number"
+              <input class="form-control new-distance"
+                     data-id="futu-b1-32095-19454"
+                     type="number"
                      placeholder="Distance meters">
             </div>
             <div class="input-group">
               <span class="input-group-addon">Beacon 2</span>
-              <input class="form-control new-distance" data-id="futu-b2-23964-38945" type="number"
+              <input class="form-control new-distance"
+                     data-id="futu-b2-23964-38945"
+                     type="number"
                      placeholder="Distance meters">
             </div>
             <div class="input-group">
               <span class="input-group-addon">Beacon 3</span>
-              <input class="form-control new-distance" data-id="futu-b3-21061-29133" type="number"
+              <input class="form-control new-distance"
+                     data-id="futu-b3-21061-29133"
+                     type="number"
                      placeholder="Distance meters">
             </div>
           </div>
-          <button id="send-location" class="btn btn-default" type="submit">Send beacon data</button>
+          <button id="send-location" class="btn btn-default" type="submit">Send data of beacons</button>
         </form>
       </div>
       <div class="col-md-4">
-        <div id="response-location" class="json-response"><h4>No location</h4></div>
+        <div id="response-location" class="json-response"><h4>No location</h4><small>Make a request to view response format.</small></div>
       </div>
     </div>
 
     <h3>Message with image</h3>
-
-    <div class="code-block">
-      <p>Sample response json:</p>
-        <pre>
-          {
-            "type": "cake",
-            "title": "Cake in kitchen",
-            "description": "Be fast",
-            "file": "/9j/4AAQSkZJRgABAQ..."
-          }</pre>
-    </div>
     <div class="row">
       <div class="col-md-4">
         <form class="form" id="message-form">
@@ -130,33 +112,27 @@
               </div>
             </div>
           </div>
-          <button id="send-message" class="btn btn-default" type="submit">Send message</button>
+          <button id="send-message" class="btn btn-default" type="submit">Send a message</button>
         </form>
       </div>
       <div class="col-md-4">
-        <div id="response-message" class="json-response"><h4>No message</h4></div>
+        <div id="response-message" class="json-response"><h4>No message</h4><small>Make a request to view response format.</small></div>
       </div>
     </div>
 
     <h3>Toilet info</h3>
-
-    <div class="code-block">
-      <p>Sample response json:</p>
-      <pre>
-        {
-          "type": "toilet",
-          "id": 1,
-          "reserved": true,
-          "methane": 55
-        }</pre>
-    </div>
     <div class="row">
       <div class="col-md-4">
         <form class="form" id="toilet-message-form">
           <div class="form-group">
             <div class="input-group">
               <span class="input-group-addon">id</span>
-              <input id="toilet-id" class="form-control" type="number" placeholder="Title" value="1">
+              <input id="toilet-id"
+                     class="form-control"
+                     type="number"
+                     placeholder="Toilet id"
+                     value=1
+                     step=1>
             </div>
             <div class="input-group">
               <label>
@@ -165,32 +141,22 @@
             </div>
             <div class="input-group">
               <span class="input-group-addon">Methane</span>
-              <input id="toilet-methane" class="form-control" type="number" placeholder="percent">
+              <input id="toilet-methane"
+                     class="form-control"
+                     type="number"
+                     placeholder="percent"
+                     step="any">
             </div>
           </div>
-          <button id="send-toilet-message" class="btn btn-default" type="submit">Send message</button>
+          <button id="send-toilet-message" class="btn btn-default" type="submit">Send a toilet message</button>
         </form>
       </div>
       <div class="col-md-4">
-        <div id="response-toilet" class="json-response"><h4>No toilet message</h4></div>
+        <div id="response-toilet" class="json-response"><h4>No toilet message</h4><small>Make a request to view response format.</small></div>
       </div>
     </div>
 
     <h3>Room info</h3>
-
-    <div class="code-block">
-      <p>Sample response json:</p>
-      <pre>
-        {
-          "type": "room",
-          "id": 1,
-          "reserved": true,
-          "temperature": 23,
-          "light": 20,
-          "dioxide": 20,
-          "noise": 10
-        }</pre>
-    </div>
     <div class="row">
       <div class="col-md-4">
         <form class="form" id="room-message-form">
@@ -206,67 +172,80 @@
             </div>
             <div class="input-group">
               <span class="input-group-addon">Temperature (C°)</span>
-              <input id="room-temperature" class="form-control" type="number" placeholder="C°">
+              <input id="room-temperature"
+                     class="form-control"
+                     type="number"
+                     placeholder="C°"
+                     step="any">
             </div>
             <div class="input-group">
               <span class="input-group-addon">Light (lumen)</span>
-              <input id="room-light" class="form-control" type="number" placeholder="C°">
+              <input id="room-light"
+                     class="form-control"
+                     type="number"
+                     placeholder="C°"
+                     step="any">
             </div>
             <div class="input-group">
               <span class="input-group-addon">CO&sup2; (%)</span>
-              <input id="room-dioxide" class="form-control" type="number" placeholder="%">
+              <input id="room-dioxide"
+                     class="form-control"
+                     type="number"
+                     placeholder="%"
+                     step="any">
             </div>
             <div class="input-group">
               <span class="input-group-addon">Noise (dB)</span>
-              <input id="room-noise" class="form-control" type="number" placeholder="dB">
+              <input id="room-noise"
+                     class="form-control"
+                     type="number"
+                     placeholder="dB"
+                     step="any">
             </div>
           </div>
-          <button id="send-room-message" class="btn btn-default" type="submit">Send message</button>
+          <button id="send-room-message" class="btn btn-default" type="submit">Send a room message</button>
         </form>
       </div>
-    </div>
-    <div class="col-md-4">
-      <div id="response-room" class="json-response"><h4>No room message</h4></div>
+      <div class="col-md-4">
+        <div id="response-room" class="json-response"><h4>No room message</h4><small>Make a request to view response format.</small></div>
+      </div>
     </div>
   </div>
 </div>
 <script>
+
   var host = window.location.protocol + '//' + window.location.host;
   var socket = io.connect(host);
 
   $('document').ready(function () {
 
-    $('#send-location').on('click', function (e) {
-      e.preventDefault();
+    $('#send-location').on('click', function (event) {
+      event.preventDefault();
       var user = $('#location-user').val();
       var floor = $('#location-floor').val();
       var $distances = $('.new-distance');
       $distances.each(function (i, el) {
         var id = $(el).data('id');
         var val = $(el).val();
-        socket.emit('beacon', {
+        pushToSocket('beacon', {
           id: id,
           email: user,
           floor: parseInt(floor),
-          distance: val === "" ? 0 : parseInt(val)
+          distance: val === "" ? 0 : parseFloat(val)
         });
       });
-    });
-
-    socket.on('location', function (msg) {
-      renderJsonResponse($('#response-location'), msg);
     });
 
     var $imageInput = $("#message-image");
     var $imageStreamInput = $("#message-image-stream");
 
-    $('#send-message').on('click', function (e) {
-      e.preventDefault();
+    $('#send-message').on('click', function (event) {
+      event.preventDefault();
       var type = $('#message-type').val();
       var title = $('#message-title').val();
       var desc = $('#message-desc').val();
       var imageStream = $imageStreamInput.val();
-      socket.emit('message', {
+      pushToSocket('message', {
         type: type,
         title: title,
         description: desc,
@@ -274,8 +253,8 @@
       });
     });
 
-    $imageInput.on('change', function (evt) {
-      var files = evt.target.files;
+    $imageInput.on('change', function (event) {
+      var files = event.target.files;
       var file = files[0];
 
       if (files && file) {
@@ -289,64 +268,88 @@
       }
     });
 
-    $('#remove-message-image').on('click', function (e) {
-      e.preventDefault();
+    $('#remove-message-image').on('click', function (event) {
+      event.preventDefault();
       $imageInput.val('');
       $imageStreamInput.val("");
     });
 
-    $('#send-toilet-message').on('click', function (e) {
-      e.preventDefault();
-      var id = $('#toilet-id').val();
-      var isReserved = $('#toilet-reserved').is(':checked');
+    $('#send-toilet-message').on('click', function (event) {
+      event.preventDefault();
+      var toiletId = $('#toilet-id').val();
+      var isToiletReserved = $('#toilet-reserved').is(':checked');
       var methane = $('#toilet-methane').val();
-      socket.emit('message', {
-        id: id,
+      pushToSocket('message', {
+        id: toiletId,
         type: 'toilet',
-        reserved: isReserved,
-        methane: methane
+        reserved: isToiletReserved,
+        methane: formatNumberInput(methane)
       });
     });
 
-    $('#send-room-message').on('click', function (e) {
-      e.preventDefault();
+    $('#send-room-message').on('click', function (event) {
+      event.preventDefault();
       var id = $('#room-id').val();
       var isReserved = $('#room-reserved').is(':checked');
       var temperature = $('#room-temperature').val();
       var light = $('#room-light').val();
       var dioxide = $('#room-dioxide').val();
       var noise = $('#room-noise').val();
-      socket.emit('message', {
+      pushToSocket('message', {
         id: id,
         type: 'room',
         reserved: isReserved,
-        temperature: temperature,
-        light: light,
-        dioxide: dioxide,
-        noise: noise
+        temperature: formatNumberInput(temperature),
+        light: formatNumberInput(light),
+        dioxide: formatNumberInput(dioxide),
+        noise: formatNumberInput(noise)
       });
     });
+
+    socket.on('location', renderJson($('#response-location')));
 
     socket.on('stream', function (messages) {
       $.each(messages, function (index, message) {
         if (message.type === 'toilet') {
-          renderJsonResponse($('#response-toilet'), message);
+          renderJson($('#response-toilet'))(message);
         } else if (message.type === 'room') {
-          renderJsonResponse($('#response-room'), message);
+          renderJson($('#response-room'))(message);
         } else {
-          renderJsonResponse($('#response-message'), format(message));
+          renderJson($('#response-message'))(substringFile(message));
         }
       });
     });
 
-    function format(json) {
-      json.file = json.file.substr(0, 15) + '..';
-      return json;
+    function formatNumberInput(input) {
+      return parseInt(input, 10);
     }
 
-    function renderJsonResponse($el, json) {
-      var $pre = $('<pre/>', {text: JSON.stringify(json)});
-      $el.html($pre);
+    function pushToSocket(key, value) {
+      socket.emit(key, value);
+    }
+
+    function renderJson($el) {
+      return function (json) {
+        var $pre = $('<pre/>', {text: stringify(json)});
+        $el.html($pre);
+      };
+    }
+
+    function stringify(o) {
+      var out = '';
+      for (var p in o) {
+        var val = o[p]
+        var formatted = typeof val === 'string' ? `"${val}"` : val;
+        out += `  ${p}:${formatted}\n`;
+      }
+      return `{\n${out}}`;
+    }
+
+    function substringFile(json) {
+      if (json.file) {
+        json.file = json.file.substr(0, 15) + '..';
+      }
+      return json;
     }
   });
 </script>
