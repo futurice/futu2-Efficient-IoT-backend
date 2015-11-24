@@ -3,6 +3,12 @@
   <link rel="stylesheet" href="/css/bootstrap.min.css">
   <script src="/socket.io/socket.io.js"></script>
   <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+  <style type="text/css">
+    .input-group {
+      margin-bottom: 15px;
+      max-width: 300px;
+    }
+  </style>
 </head>
 <body>
 <div class="container-fluid">
@@ -11,15 +17,31 @@
   </div>
     <div class="container-fluid">
       <div class="row">
-        <form class="form" id="form" onsubmit="return false;">
+        <form class="form" id="location-form">
           <div class="form-group">
             <label class="col-4 control-label">Location</label>
+              <div class="input-group">
+                <span class="input-group-addon">User</span>
+                <input id="location-user" type="text" class="form-control" placeholder="User email or name or avatar">
+              </div>
             <div class="input-group">
-              <input class="new-distance" data-id="futu-b1-32095-19454" type="number" class="form-control" placeholder="Beacon1 distance" style="width:100%">
-              <input class="new-distance" data-id="futu-b2-23964-38945" type="number" class="form-control" placeholder="Beacon2 distance" style="width:100%">
-              <input class="new-distance" data-id="futu-b3-21061-29133" type="number" class="form-control" placeholder="Beacon3 distance" style="width:100%">
+              <span class="input-group-addon">Floor</span>
+              <input id="location-floor" type="number" class="form-control" placeholder="Default 7" value="7">
             </div>
-          </div>
+              <div class="input-group">
+                <span class="input-group-addon">Beacon 1</span>
+                <input class="form-control new-distance" data-id="futu-b1-32095-19454" type="number" placeholder="Distance meters">
+              </div>
+              <div class="input-group">
+                <span class="input-group-addon">Beacon 2</span>
+                <input class="form-control new-distance" data-id="futu-b2-23964-38945" type="number" placeholder="Distance meters">
+              </div>
+              <div class="input-group">
+                <span class="input-group-addon">Beacon 3</span>
+                <input class="form-control new-distance" data-id="futu-b3-21061-29133" type="number" placeholder="Distance meters">
+              </div>
+            </div>
+          <button id="send-location" class="btn btn-default" type="submit">Send location</button>
         </form>
         <div id="location"><p>No location</p></div><br/><br/>
       </div>
@@ -31,7 +53,7 @@
             <input type="file" id="image">
           </div>
         </form>
-        <div><img id="cake-image" src=""  alt="no image" class="img-rounded"></div><br/><br/>
+        <div><img id="cake-image" src=""  alt="no image" style="width:300px;" class="img-rounded"></div><br/><br/>
     </div>
 
     <div class="row">
@@ -60,17 +82,25 @@
   var host = window.location.protocol + '//' + window.location.host;
   var socket = io.connect(host);
 
+
   $('document').ready(function(){
     var timestamp = new Date().valueOf();
 
-    $('.new-distance').on('keyup change', function () {
-        var val = $(this).val();
-         socket.emit('beacon', {
-            id: $(this).data('id'),
-            email: '' + timestamp + '@mail.com',
-            floor: 7,
-            distance: val === "" ? 0 : parseInt(val)
+    $('#send-location').on('click', function (e) {
+      e.preventDefault();
+      var user = $('#location-user').val();
+      var floor = $('#location-floor').val();
+      var $distances = $('.new-distance');
+      $distances.each(function(i, el){
+        var id =  $(el).data('id');
+        var val =  $(el).val();
+        socket.emit('beacon', {
+          id: id,
+          email: user,
+          floor: parseInt(floor),
+          distance: val === "" ? 0 : parseInt(val)
         });
+      });
     });
 
     socket.on('location', function(msg){
@@ -117,7 +147,6 @@
 
     socket.on('stream', function(messages) {
       $.each(messages, function(index, message){
-        console.log(message);
         if(message.type === 'cake') {
           $('#cake-image').attr('src', 'data:image/png;base64,' + message.value)
         } else {
