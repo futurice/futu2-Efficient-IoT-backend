@@ -4,6 +4,9 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
   <style type="text/css">
+    input[type=number] {
+      width: 50px;
+    }
     .input-group {
       margin-bottom: 15px;
     }
@@ -47,12 +50,12 @@
                   <input class="form-control new-distance" data-id="futu-b3-21061-29133" type="number" placeholder="Distance meters">
                 </div>
               </div>
-            <button id="send-location" class="btn btn-default" type="submit">Send location</button>
+            <button id="send-location" class="btn btn-default" type="submit">Send beacon data</button>
           </form>
         </div>
         <div class="col-md-4">
           <div id="location">
-            <h4>No location sent</h4>
+            <h4>No location</h4>
           </div>
         </div>
       </div>
@@ -95,6 +98,32 @@
           <div id="message"><h4>No Message</h4></div>
         </div>
     </div>
+    <h3>Toilet info</h3>
+    <div class="row">
+      <div class="col-md-4">
+        <form class="form" id="message-form">
+          <div class="form-group">
+            <div class="input-group">
+              <span class="input-group-addon">id</span>
+              <input id="toilet-id" class="form-control" type="number" placeholder="Title" value="1">
+            </div>
+            <div class="input-group">
+              <label>
+                <input id="toilet-reserved" type="checkbox"> Reserved
+              </label>
+            </div>
+            <div class="input-group">
+              <span class="input-group-addon">Methane</span>
+              <input id="toilet-methane" class="form-control" type="number" placeholder="percent">
+            </div>
+          </div>
+          <button id="send-toilet-message" class="btn btn-default" type="submit">Send message</button>
+        </form>
+      </div>
+      <div class="col-md-4">
+        <div id="toilet-message"><h4>No Toilet message</h4></div>
+      </div>
+    </div>
   </div>
 </div>
 <script>
@@ -102,7 +131,7 @@
   var socket = io.connect(host);
 
 
-  $('document').ready(function(){
+  $('document').ready( function () {
 
     $('#send-location').on('click', function (e) {
       e.preventDefault();
@@ -134,7 +163,6 @@
     var $imageStreamInput = $("#message-image-stream");
     var $imagePreview = $("#message-image-preview");
     var $imagePreviewImage = $("#message-image-preview-image");
-
 
     $('#send-message').on('click', function (e) {
       e.preventDefault();
@@ -174,18 +202,49 @@
       $imagePreview.addClass('hidden');
     });
 
-    socket.on('stream', function(messages) {
-      $.each(messages, function(index, message){
-        var imageHtml = message.file ? '<img class="img-rounded" src="data:image/png;base64,' + message.file + '" alt="image"/>' : '';
-        var messageHtml = [
-          '<p>message type: ' + message.type + '</p>',
-          '<h4>' + message.title + '</h4>',
-          '<p>' + message.description + '</p>',
-          imageHtml
-        ].join('');
-        $('#message').html(messageHtml);
+    $('#send-toilet-message').on('click', function (e) {
+      e.preventDefault();
+      var id = $('#toilet-id').val();
+      var isReserved = $('#toilet-reserved').is(':checked');
+      var methane = $('#toilet-methane').val();
+      socket.emit('message', {
+        id: id,
+        type: 'toilet',
+        reserved: isReserved,
+        methane: methane
       });
     });
+
+    socket.on('stream', function(messages) {
+      $.each(messages, function(index, message){
+        if (message.type === 'toilet') {
+          renderToiletMessage($('#toilet-message'),message);
+        } else {
+          renderMessage($('#message'),message);
+        }
+      });
+    });
+
+    function renderToiletMessage($el, message){
+      console.log(message);
+      var messageHtml = [
+        '<h4>' + message.id + '</h4>',
+        '<p>status: ' + (message.reserved ? 'taken' : 'free') + '</p>',
+        '<p>methane: ' + message.methane + '%</p>'
+      ].join('');
+      $el.html(messageHtml);
+    }
+
+    function renderMessage($el, message){
+      var imageHtml = message.file ? '<img class="img-rounded" src="data:image/png;base64,' + message.file + '" alt="image"/>' : '';
+      var messageHtml = [
+        '<p>message type: ' + message.type + '</p>',
+        '<h4>' + message.title + '</h4>',
+        '<p>' + message.description + '</p>',
+        imageHtml
+      ].join('');
+      $el.html(messageHtml);
+    }
   });
 </script>
 </body>
