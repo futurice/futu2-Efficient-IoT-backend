@@ -82,13 +82,8 @@
           <button id="send-location" class="btn btn-default" type="submit">Send beacon data</button>
         </form>
       </div>
-      <div class="col-md-2">
-        <div id="location">
-          <h4>No location</h4>
-        </div>
-      </div>
       <div class="col-md-4">
-        <div id="response-location" class="json-response"></div>
+        <div id="response-location" class="json-response"><h4>No location</h4></div>
       </div>
     </div>
 
@@ -138,11 +133,8 @@
           <button id="send-message" class="btn btn-default" type="submit">Send message</button>
         </form>
       </div>
-      <div class="col-md-2">
-        <div id="message"><h4>No message</h4></div>
-      </div>
       <div class="col-md-4">
-        <div id="response-message" class="json-response"></div>
+        <div id="response-message" class="json-response"><h4>No message</h4></div>
       </div>
     </div>
 
@@ -179,11 +171,8 @@
           <button id="send-toilet-message" class="btn btn-default" type="submit">Send message</button>
         </form>
       </div>
-      <div class="col-md-2">
-        <div id="toilet-message"><h4>No toilet message</h4></div>
-      </div>
       <div class="col-md-4">
-        <div id="response-toilet" class="json-response"></div>
+        <div id="response-toilet" class="json-response"><h4>No toilet message</h4></div>
       </div>
     </div>
 
@@ -235,19 +224,15 @@
           <button id="send-room-message" class="btn btn-default" type="submit">Send message</button>
         </form>
       </div>
-      <div class="col-md-2">
-        <div id="room-message"><h4>No room message</h4></div>
-      </div>
     </div>
     <div class="col-md-4">
-      <div id="response-room" class="json-response"></div>
+      <div id="response-room" class="json-response"><h4>No room message</h4></div>
     </div>
   </div>
 </div>
 <script>
   var host = window.location.protocol + '//' + window.location.host;
   var socket = io.connect(host);
-
 
   $('document').ready(function () {
 
@@ -269,20 +254,11 @@
     });
 
     socket.on('location', function (msg) {
-      $('#location')
-        .html([
-          '<h4>' + msg.email + '</h4>',
-          '<p>x: ' + msg.x + '</p>',
-          '<p>y: ' + msg.y + '</p>'
-        ].join(''));
-
       renderJsonResponse($('#response-location'), msg);
     });
 
     var $imageInput = $("#message-image");
     var $imageStreamInput = $("#message-image-stream");
-    var $imagePreview = $("#message-image-preview");
-    var $imagePreviewImage = $("#message-image-preview-image");
 
     $('#send-message').on('click', function (e) {
       e.preventDefault();
@@ -307,9 +283,7 @@
         reader.onload = function (readerEvt) {
           var binaryString = readerEvt.target.result;
           var val = btoa(binaryString);
-          $imagePreview.removeClass('hidden');
           $imageStreamInput.val(val);
-          $imagePreviewImage.attr('src', 'data:image/png;base64,' + val);
         };
         reader.readAsBinaryString(file);
       }
@@ -319,7 +293,6 @@
       e.preventDefault();
       $imageInput.val('');
       $imageStreamInput.val("");
-      $imagePreview.addClass('hidden');
     });
 
     $('#send-toilet-message').on('click', function (e) {
@@ -357,13 +330,10 @@
     socket.on('stream', function (messages) {
       $.each(messages, function (index, message) {
         if (message.type === 'toilet') {
-          renderToiletMessage($('#toilet-message'), message);
           renderJsonResponse($('#response-toilet'), message);
         } else if (message.type === 'room') {
-          renderRoomMessage($('#room-message'), message);
           renderJsonResponse($('#response-room'), message);
         } else {
-          renderMessage($('#message'), message);
           renderJsonResponse($('#response-message'), format(message));
         }
       });
@@ -374,41 +344,9 @@
       return json;
     }
 
-    function renderToiletMessage($el, message) {
-      var messageHtml = [
-        '<h4>' + message.id + '</h4>',
-        '<p>status: ' + (message.reserved ? 'taken' : 'free') + '</p>',
-        '<p>methane: ' + message.methane + '%</p>'
-      ].join('');
-      $el.html(messageHtml);
-    }
-
-    function renderRoomMessage($el, message) {
-      var messageHtml = [
-        '<h4>' + message.id + '</h4>',
-        '<p>status: ' + (message.reserved ? 'taken' : 'free') + '</p>',
-        '<p>temperature: ' + message.temperature + 'C°</p>',
-        '<p>light: ' + message.light + ' lumens</p>',
-        '<p>CO&sup2;: ' + message.dioxide + '%</p>',
-        '<p>noise: ' + message.noise + 'db</p>'
-      ].join('');
-      $el.html(messageHtml);
-    }
-
-    function renderMessage($el, message) {
-      var imageHtml = message.file ? '<img class="img-rounded" src="data:image/png;base64,' + message.file + '" alt="image"/>' : '';
-      var messageHtml = [
-        '<p>message type: ' + message.type + '</p>',
-        '<h4>' + message.title + '</h4>',
-        '<p>' + message.description + '</p>',
-        imageHtml
-      ].join('');
-      $el.html(messageHtml);
-    }
-
     function renderJsonResponse($el, json) {
       var $pre = $('<pre/>', {text: JSON.stringify(json)});
-      $pre.appendTo($el);
+      $el.html($pre);
     }
   });
 </script>
