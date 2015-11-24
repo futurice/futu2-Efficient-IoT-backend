@@ -4,15 +4,31 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
   <style type="text/css">
+    .code-block {
+      margin-bottom: 10px;
+    }
+
+    .code-block pre {
+      display: inline-block;
+      border: 0 none;
+    }
+
+    .json-response pre {
+      border: 0 none;
+    }
+
     input[type=number] {
       width: 50px;
     }
+
     .input-group {
       margin-bottom: 15px;
     }
+
     .img-preview {
       width: 50px;
     }
+
     .img-rounded {
       max-width: 150px;
     }
@@ -23,83 +39,125 @@
   <div class="page-header">
     <h1><%= title %></h1>
   </div>
-    <div class="container-fluid">
-      <h3>Location</h3>
-      <div class="row">
-        <div class="col-md-4">
-          <form class="form" id="location-form">
-            <div class="form-group">
-             <div class="input-group">
-                  <span class="input-group-addon">User</span>
-                  <input id="location-user" type="text" class="form-control" placeholder="User email or name or avatar">
-                </div>
-              <div class="input-group">
-                <span class="input-group-addon">Floor</span>
-                <input id="location-floor" type="number" class="form-control" placeholder="Default 7" value="7">
-              </div>
-                <div class="input-group">
-                  <span class="input-group-addon">Beacon 1</span>
-                  <input class="form-control new-distance" data-id="futu-b1-32095-19454" type="number" placeholder="Distance meters">
-                </div>
-                <div class="input-group">
-                  <span class="input-group-addon">Beacon 2</span>
-                  <input class="form-control new-distance" data-id="futu-b2-23964-38945" type="number" placeholder="Distance meters">
-                </div>
-                <div class="input-group">
-                  <span class="input-group-addon">Beacon 3</span>
-                  <input class="form-control new-distance" data-id="futu-b3-21061-29133" type="number" placeholder="Distance meters">
-                </div>
-              </div>
-            <button id="send-location" class="btn btn-default" type="submit">Send beacon data</button>
-          </form>
-        </div>
-        <div class="col-md-4">
-          <div id="location">
-            <h4>No location</h4>
+  <div class="container-fluid">
+    <h3>Location</h3>
+
+    <div class="code-block">
+      <p>Sample response json:</p>
+        <pre>
+          {
+            "email": "asko@mail.com",
+            "x": 1,
+            "y": 2
+          }</pre>
+    </div>
+    <div class="row">
+      <div class="col-md-4">
+        <form class="form" id="location-form">
+          <div class="form-group">
+            <div class="input-group">
+              <span class="input-group-addon">User</span>
+              <input id="location-user" type="text" class="form-control" placeholder="User email or name or avatar">
+            </div>
+            <div class="input-group">
+              <span class="input-group-addon">Floor</span>
+              <input id="location-floor" type="number" class="form-control" placeholder="Default 7" value="7">
+            </div>
+            <div class="input-group">
+              <span class="input-group-addon">Beacon 1</span>
+              <input class="form-control new-distance" data-id="futu-b1-32095-19454" type="number"
+                     placeholder="Distance meters">
+            </div>
+            <div class="input-group">
+              <span class="input-group-addon">Beacon 2</span>
+              <input class="form-control new-distance" data-id="futu-b2-23964-38945" type="number"
+                     placeholder="Distance meters">
+            </div>
+            <div class="input-group">
+              <span class="input-group-addon">Beacon 3</span>
+              <input class="form-control new-distance" data-id="futu-b3-21061-29133" type="number"
+                     placeholder="Distance meters">
+            </div>
           </div>
+          <button id="send-location" class="btn btn-default" type="submit">Send beacon data</button>
+        </form>
+      </div>
+      <div class="col-md-2">
+        <div id="location">
+          <h4>No location</h4>
         </div>
       </div>
+      <div class="col-md-4">
+        <div id="response-location" class="json-response"></div>
+      </div>
+    </div>
 
-      <h3>Message with image</h3>
-      <div class="row">
-        <div class="col-md-4">
-          <form class="form" id="message-form">
-            <div class="form-group">
-              <div class="input-group">
-                <select id="message-type">
-                  <option value="cake" selected="selected">cake</option>
-                  <option value="food">food</option>
-                  <option value="common">common</option>
-                </select>
-              </div>
-              <div class="input-group">
-                <span class="input-group-addon">Title</span>
-                <input id="message-title" class="form-control" type="text" placeholder="Title" value="Cake in kitchen">
-              </div>
-              <div class="input-group">
-                <span class="input-group-addon">Description</span>
-                <input id="message-desc" class="form-control" type="text" placeholder="Optional description">
-              </div>
-              <div class="input-group">
-                <label>Image</label>
-                <input type="file" id="message-image">
-                <input type="hidden" id="message-image-stream">
-                <div id="message-image-preview" class="hidden">
-                  <img id="message-image-preview-image" src=""  alt="no image" class="img-preview img-rounded">
-                  <br/>
-                  <a id="remove-message-image" href="#">Remove image</a>
-                </div>
+    <h3>Message with image</h3>
+
+    <div class="code-block">
+      <p>Sample response json:</p>
+        <pre>
+          {
+            "type": "cake",
+            "title": "Cake in kitchen",
+            "description": "Be fast",
+            "file": "/9j/4AAQSkZJRgABAQ..."
+          }</pre>
+    </div>
+    <div class="row">
+      <div class="col-md-4">
+        <form class="form" id="message-form">
+          <div class="form-group">
+            <div class="input-group">
+              <select id="message-type">
+                <option value="cake" selected="selected">cake</option>
+                <option value="food">food</option>
+                <option value="common">common</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <span class="input-group-addon">Title</span>
+              <input id="message-title" class="form-control" type="text" placeholder="Title" value="Cake in kitchen">
+            </div>
+            <div class="input-group">
+              <span class="input-group-addon">Description</span>
+              <input id="message-desc" class="form-control" type="text" placeholder="Optional description">
+            </div>
+            <div class="input-group">
+              <label>Image</label>
+              <input type="file" id="message-image">
+              <input type="hidden" id="message-image-stream">
+
+              <div id="message-image-preview" class="hidden">
+                <img id="message-image-preview-image" src="" alt="no image" class="img-preview img-rounded">
+                <br/>
+                <a id="remove-message-image" href="#">Remove image</a>
               </div>
             </div>
-            <button id="send-message" class="btn btn-default" type="submit">Send message</button>
-          </form>
-        </div>
-        <div class="col-md-4">
-          <div id="message"><h4>No message</h4></div>
-        </div>
+          </div>
+          <button id="send-message" class="btn btn-default" type="submit">Send message</button>
+        </form>
+      </div>
+      <div class="col-md-2">
+        <div id="message"><h4>No message</h4></div>
+      </div>
+      <div class="col-md-4">
+        <div id="response-message" class="json-response"></div>
+      </div>
     </div>
 
     <h3>Toilet info</h3>
+
+    <div class="code-block">
+      <p>Sample response json:</p>
+      <pre>
+        {
+          "type": "toilet",
+          "id": 1,
+          "reserved": true,
+          "methane": 55
+        }</pre>
+    </div>
     <div class="row">
       <div class="col-md-4">
         <form class="form" id="toilet-message-form">
@@ -121,12 +179,29 @@
           <button id="send-toilet-message" class="btn btn-default" type="submit">Send message</button>
         </form>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-2">
         <div id="toilet-message"><h4>No toilet message</h4></div>
+      </div>
+      <div class="col-md-4">
+        <div id="response-toilet" class="json-response"></div>
       </div>
     </div>
 
     <h3>Room info</h3>
+
+    <div class="code-block">
+      <p>Sample response json:</p>
+      <pre>
+        {
+          "type": "room",
+          "id": 1,
+          "reserved": true,
+          "temperature": 23,
+          "light": 20,
+          "dioxide": 20,
+          "noise": 10
+        }</pre>
+    </div>
     <div class="row">
       <div class="col-md-4">
         <form class="form" id="room-message-form">
@@ -160,9 +235,12 @@
           <button id="send-room-message" class="btn btn-default" type="submit">Send message</button>
         </form>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-2">
         <div id="room-message"><h4>No room message</h4></div>
       </div>
+    </div>
+    <div class="col-md-4">
+      <div id="response-room" class="json-response"></div>
     </div>
   </div>
 </div>
@@ -171,16 +249,16 @@
   var socket = io.connect(host);
 
 
-  $('document').ready( function () {
+  $('document').ready(function () {
 
     $('#send-location').on('click', function (e) {
       e.preventDefault();
       var user = $('#location-user').val();
       var floor = $('#location-floor').val();
       var $distances = $('.new-distance');
-      $distances.each(function(i, el){
-        var id =  $(el).data('id');
-        var val =  $(el).val();
+      $distances.each(function (i, el) {
+        var id = $(el).data('id');
+        var val = $(el).val();
         socket.emit('beacon', {
           id: id,
           email: user,
@@ -190,13 +268,15 @@
       });
     });
 
-    socket.on('location', function(msg){
+    socket.on('location', function (msg) {
       $('#location')
         .html([
           '<h4>' + msg.email + '</h4>',
           '<p>x: ' + msg.x + '</p>',
           '<p>y: ' + msg.y + '</p>'
         ].join(''));
+
+      renderJsonResponse($('#response-location'), msg);
     });
 
     var $imageInput = $("#message-image");
@@ -218,13 +298,13 @@
       });
     });
 
-    $imageInput.on('change', function(evt) {
+    $imageInput.on('change', function (evt) {
       var files = evt.target.files;
       var file = files[0];
 
       if (files && file) {
         var reader = new FileReader();
-        reader.onload = function(readerEvt) {
+        reader.onload = function (readerEvt) {
           var binaryString = readerEvt.target.result;
           var val = btoa(binaryString);
           $imagePreview.removeClass('hidden');
@@ -274,19 +354,27 @@
       });
     });
 
-    socket.on('stream', function(messages) {
-      $.each(messages, function(index, message){
+    socket.on('stream', function (messages) {
+      $.each(messages, function (index, message) {
         if (message.type === 'toilet') {
-          renderToiletMessage($('#toilet-message'),message);
+          renderToiletMessage($('#toilet-message'), message);
+          renderJsonResponse($('#response-toilet'), message);
         } else if (message.type === 'room') {
           renderRoomMessage($('#room-message'), message);
+          renderJsonResponse($('#response-room'), message);
         } else {
-          renderMessage($('#message'),message);
+          renderMessage($('#message'), message);
+          renderJsonResponse($('#response-message'), format(message));
         }
       });
     });
 
-    function renderToiletMessage($el, message){
+    function format(json) {
+      json.file = json.file.substr(0, 15) + '..';
+      return json;
+    }
+
+    function renderToiletMessage($el, message) {
       var messageHtml = [
         '<h4>' + message.id + '</h4>',
         '<p>status: ' + (message.reserved ? 'taken' : 'free') + '</p>',
@@ -295,7 +383,7 @@
       $el.html(messageHtml);
     }
 
-    function renderRoomMessage($el, message){
+    function renderRoomMessage($el, message) {
       var messageHtml = [
         '<h4>' + message.id + '</h4>',
         '<p>status: ' + (message.reserved ? 'taken' : 'free') + '</p>',
@@ -307,7 +395,7 @@
       $el.html(messageHtml);
     }
 
-    function renderMessage($el, message){
+    function renderMessage($el, message) {
       var imageHtml = message.file ? '<img class="img-rounded" src="data:image/png;base64,' + message.file + '" alt="image"/>' : '';
       var messageHtml = [
         '<p>message type: ' + message.type + '</p>',
@@ -316,6 +404,11 @@
         imageHtml
       ].join('');
       $el.html(messageHtml);
+    }
+
+    function renderJsonResponse($el, json) {
+      var $pre = $('<pre/>', {text: JSON.stringify(json)});
+      $pre.appendTo($el);
     }
   });
 </script>
