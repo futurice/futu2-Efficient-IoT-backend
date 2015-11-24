@@ -95,13 +95,14 @@
           </form>
         </div>
         <div class="col-md-4">
-          <div id="message"><h4>No Message</h4></div>
+          <div id="message"><h4>No message</h4></div>
         </div>
     </div>
+
     <h3>Toilet info</h3>
     <div class="row">
       <div class="col-md-4">
-        <form class="form" id="message-form">
+        <form class="form" id="toilet-message-form">
           <div class="form-group">
             <div class="input-group">
               <span class="input-group-addon">id</span>
@@ -121,7 +122,46 @@
         </form>
       </div>
       <div class="col-md-4">
-        <div id="toilet-message"><h4>No Toilet message</h4></div>
+        <div id="toilet-message"><h4>No toilet message</h4></div>
+      </div>
+    </div>
+
+    <h3>Room info</h3>
+    <div class="row">
+      <div class="col-md-4">
+        <form class="form" id="room-message-form">
+          <div class="form-group">
+            <div class="input-group">
+              <span class="input-group-addon">id</span>
+              <input id="room-id" class="form-control" type="number" placeholder="Title" value="1">
+            </div>
+            <div class="input-group">
+              <label>
+                <input id="room-reserved" type="checkbox"> Reserved
+              </label>
+            </div>
+            <div class="input-group">
+              <span class="input-group-addon">Temperature (C°)</span>
+              <input id="room-temperature" class="form-control" type="number" placeholder="C°">
+            </div>
+            <div class="input-group">
+              <span class="input-group-addon">Light (lumen)</span>
+              <input id="room-light" class="form-control" type="number" placeholder="C°">
+            </div>
+            <div class="input-group">
+              <span class="input-group-addon">CO&sup2; (%)</span>
+              <input id="room-dioxide" class="form-control" type="number" placeholder="%">
+            </div>
+            <div class="input-group">
+              <span class="input-group-addon">Noise (dB)</span>
+              <input id="room-noise" class="form-control" type="number" placeholder="dB">
+            </div>
+          </div>
+          <button id="send-room-message" class="btn btn-default" type="submit">Send message</button>
+        </form>
+      </div>
+      <div class="col-md-4">
+        <div id="room-message"><h4>No room message</h4></div>
       </div>
     </div>
   </div>
@@ -215,10 +255,31 @@
       });
     });
 
+    $('#send-room-message').on('click', function (e) {
+      e.preventDefault();
+      var id = $('#room-id').val();
+      var isReserved = $('#room-reserved').is(':checked');
+      var temperature = $('#room-temperature').val();
+      var light = $('#room-light').val();
+      var dioxide = $('#room-dioxide').val();
+      var noise = $('#room-noise').val();
+      socket.emit('message', {
+        id: id,
+        type: 'room',
+        reserved: isReserved,
+        temperature: temperature,
+        light: light,
+        dioxide: dioxide,
+        noise: noise
+      });
+    });
+
     socket.on('stream', function(messages) {
       $.each(messages, function(index, message){
         if (message.type === 'toilet') {
           renderToiletMessage($('#toilet-message'),message);
+        } else if (message.type === 'room') {
+          renderRoomMessage($('#room-message'), message);
         } else {
           renderMessage($('#message'),message);
         }
@@ -226,11 +287,22 @@
     });
 
     function renderToiletMessage($el, message){
-      console.log(message);
       var messageHtml = [
         '<h4>' + message.id + '</h4>',
         '<p>status: ' + (message.reserved ? 'taken' : 'free') + '</p>',
         '<p>methane: ' + message.methane + '%</p>'
+      ].join('');
+      $el.html(messageHtml);
+    }
+
+    function renderRoomMessage($el, message){
+      var messageHtml = [
+        '<h4>' + message.id + '</h4>',
+        '<p>status: ' + (message.reserved ? 'taken' : 'free') + '</p>',
+        '<p>temperature: ' + message.temperature + 'C°</p>',
+        '<p>light: ' + message.light + ' lumens</p>',
+        '<p>CO&sup2;: ' + message.dioxide + '%</p>',
+        '<p>noise: ' + message.noise + 'db</p>'
       ].join('');
       $el.html(messageHtml);
     }
