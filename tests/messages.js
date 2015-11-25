@@ -1,4 +1,5 @@
-const app = require('../app/bin/www');
+'use strict';
+const app = require('../bin/www');
 const io = require('socket.io-client');
 const socketURL = 'http://0.0.0.0:8080';
 const should = require('should');
