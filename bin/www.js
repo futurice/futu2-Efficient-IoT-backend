@@ -1,19 +1,18 @@
 #!/usr/bin/env node
+'use strict';
 
 /**
  * Module dependencies.
  */
 
-const app = require('../index');
+const app = require('app');
 const debug = require('debug')('futu2_backend:server');
 const http = require('http');
 
 /**
  * Get port from environment and store in Express.
  */
-
 const port = process.env.PORT || '8080';
-
 app.set('port', port);
 
 /**

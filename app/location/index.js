@@ -1,5 +1,5 @@
 const Rx = require('rx');
-const { beacons } = require('../../config/index.js');
+const { beacons } = require('config');
 
 exports.fromDeviceStream = stream => {
   const beaconStreams = splitInToBeaconStreams(stream, beacons);
@@ -32,7 +32,7 @@ function mapDataWithConfig(data, config) {
 
 function calculatePosition(devices) {
 
-  let [obj, obj2, obj3, ...rest] = devices;
+  let [obj, obj2, obj3, rest] = devices;
   const W = getIntersectionPoint(obj, obj2);
   const Z = getIntersectionPoint(obj2, obj3);
   const Y = (W * (obj3.y - obj2.y) - Z * (obj2.y - obj.y));

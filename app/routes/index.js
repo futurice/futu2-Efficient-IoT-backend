@@ -1,5 +1,6 @@
 const express = require('express');
-const { stream } = require('../../config/index.js');
+const { stream } = require('config');
+
 const router = express.Router();
 
 router.get('/', (req, res) => {

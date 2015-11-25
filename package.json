@@ -7,19 +7,14 @@
     "node": "4.1.1"
   },
   "scripts": {
-    "babel-build": "$(npm bin)/babel ./app -d dist ",
-    "copytemplate": "cp -r app/views/ dist/views",
-    "test": "npm run lint && NODE_ENV=test $(npm bin)/_mocha --compilers js:babel-core/register -- tests/*.js || exit 0",
-    "test-watch": "$(npm bin)/nodemon --exec 'babel-node' -x 'NODE_ENV=test $(npm bin)/_mocha --compilers js:babel-core/register -- tests/*.js'",
-    "clean": "$(npm bin)/n-clean dist",
+    "test": "npm run lint && NODE_ENV=test $(npm bin)/_mocha --harmony_destructuring --harmony_modules --harmony_array_includes --es-staging -- tests/*.js || exit 0",
+    "test-watch": "$(npm bin)/nodemon --harmony_destructuring --harmony_modules --harmony_array_includes --es-staging -- tests/*.js'",
     "jscs": "$(npm bin)/jscs app",
     "eslint": "$(npm bin)/eslint app",
     "lint": "npm run jscs && npm run eslint",
-    "start": "$(npm bin)/nodemon --exec 'babel-node' ./app/bin/www",
-    "watch": "npm run lint && npm start",
-    "build": "npm run lint && npm run clean && npm run babel-build && npm run copytemplate",
-    "postinstall": "echo ----------> Postinstall build; npm run build",
-    "serve": "node ./dist/bin/www"
+    "start": "NODE_PATH=. $(npm bin)/nodemon --harmony_destructuring --harmony_modules --harmony_array_includes --es-staging ./bin/www",
+    "watch": " npm run lint && npm start",
+    "serve": "NODE_PATH=. node --harmony_destructuring --harmony_modules --harmony_array_includes --es-staging ./bin/www.js"
   },
   "keywords": [
     "IoT",
@@ -27,7 +22,6 @@
   ],
   "license": "ISC",
   "dependencies": {
-    "babel": "5.8.23",
     "body-parser": "^1.14.1",
     "bootstrap": "^3.3.5",
     "debug": "^2.2.0",
@@ -37,13 +31,11 @@
     "jscs": "^2.6.0",
     "morgan": "^1.6.1",
     "nodemon": "^1.8.1",
-    "npm-build-tools": "^2.2.5",
     "rx": "^4.0.7",
     "serve-favicon": "^2.3.0",
     "socket.io": "^1.3.7"
   },
   "devDependencies": {
-    "babel-core": "5.8.23",
     "mocha": "^2.3.4",
     "should": "^7.1.1",
     "socket.io-client": "^1.3.7"
