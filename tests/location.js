@@ -1,6 +1,7 @@
+'use strict';
 const io = require('socket.io-client');
 const socketURL = 'http://0.0.0.0:8080';
-const app = require('../app/bin/www');
+const app = require('../bin/www');
 const should = require('should');
 const options ={
   transports: ['websocket'],

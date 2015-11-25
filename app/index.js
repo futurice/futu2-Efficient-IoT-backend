@@ -1,19 +1,20 @@
-#!/usr/bin/env node
-const { stream } = require('../config/index.js');
+'use strict';
+const path = require('path');
 const express = require('express');
 const socketIO = require('socket.io');
-const path = require('path');
 const logger = require('morgan');
-const bodyParser = require('body-parser');
-const routes = require('./routes/index');
-const location = require('./location/location');
 const Rx = require('rx');
+const bodyParser = require('body-parser');
+const { stream } = require('config');
+const routes = require('app/routes');
+const location = require('app/location');
 const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.use('/css', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/css')));
+app.use('/js', express.static(path.join(__dirname, './views/js')));
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
@@ -47,6 +48,5 @@ messageSource
   .subscribeOnNext(
     messages => app.io.emit('stream', messages),
     error => console.log(`Stream error:${error}`));
-
 
 module.exports = app;
