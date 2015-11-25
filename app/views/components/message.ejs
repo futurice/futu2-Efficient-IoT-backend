@@ -1,0 +1,102 @@
+<% var messageTypes = ['cake', 'food', 'common']; %>
+<div class="row">
+  <div class="col-md-4">
+    <form class="form" id="message-form">
+      <div class="form-group">
+        <div class="input-group">
+          <select id="message-type">
+            <% for(var i=0; i<messageTypes.length; i++) {%>
+              <option value="<%= messageTypes[i] %>" <%= messageTypes[i] === 'cake' && 'selected=selected'%> ><%= messageTypes[i]%></option>
+            <% } %>
+          </select>
+        </div>
+        <div class="input-group">
+          <span class="input-group-addon">Title</span>
+          <input id="message-title" class="form-control" type="text" placeholder="Title" value="Cake in kitchen">
+        </div>
+        <div class="input-group">
+          <span class="input-group-addon">Description</span>
+          <input id="message-desc" class="form-control" type="text" placeholder="Optional description">
+        </div>
+        <div class="input-group">
+          <label>Image</label>
+          <input type="file" id="message-image">
+          <input type="hidden" id="message-image-stream">
+
+          <div id="message-image-preview" class="hidden">
+            <img id="message-image-preview-image" src="" alt="no image" class="img-preview img-rounded">
+            <br/>
+            <a id="remove-message-image" href="#">Remove image</a>
+          </div>
+        </div>
+      </div>
+      <button id="send-message" class="btn btn-default" type="submit">Send a message</button>
+    </form>
+  </div>
+  <div class="col-md-4">
+    <% include response-holder.ejs %>
+  </div>
+</div>
+<script>
+  (function ($) {
+    var types = [];
+    <% for(var i=0; i<messageTypes.length; i++) {%>
+    types.push('<%= messageTypes[i] %>');
+    <% } %>
+    var $responseHolder = $('#<%= responseType%>-holder');
+    var utils = window.FUTU2.utils;
+    var socket = window.FUTU2.socket;
+
+    var $imageInput = $("#message-image");
+    var $imageStreamInput = $("#message-image-stream");
+
+    $('#send-message').on('click', function (event) {
+      event.preventDefault();
+      var type = $('#message-type').val();
+      var title = $('#message-title').val();
+      var desc = $('#message-desc').val();
+      var imageStream = $imageStreamInput.val();
+      socket.emit('message', {
+        type: type,
+        title: title,
+        description: desc,
+        file: imageStream || ""
+      });
+    });
+
+    $imageInput.on('change', function (event) {
+      var files = event.target.files;
+      var file = files[0];
+
+      if (files && file) {
+        var reader = new FileReader();
+        reader.onload = function (readerEvt) {
+          var binaryString = readerEvt.target.result;
+          var val = btoa(binaryString);
+          $imageStreamInput.val(val);
+        };
+        reader.readAsBinaryString(file);
+      }
+    });
+
+    $('#remove-message-image').on('click', function (event) {
+      event.preventDefault();
+      $imageInput.val('');
+      $imageStreamInput.val("");
+    });
+
+    socket.on('stream', function(messages){
+      var message = utils.returnFirstMessage(types, messages);
+        if (message) {
+          utils.renderJson($responseHolder, substringFile(message))
+        }
+      });
+
+    function substringFile(json) {
+      if (json.file) {
+        json.file = json.file.substr(0, 15) + '..';
+      }
+      return json;
+    }
+  })(jQuery);
+</script>

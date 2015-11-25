@@ -1,9 +1,11 @@
 const express = require('express');
+const { stream } = require('../../config/index.js');
 const router = express.Router();
 
-router.get('/', function (req, res, next) {
+router.get('/', (req, res) => {
 	res.render('index', {
-		title: 'Futu2'
+		title: 'Futu2',
+    stream: stream
 	});
 });
 

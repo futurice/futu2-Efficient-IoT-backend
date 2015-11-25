@@ -1,0 +1,65 @@
+<div class="row">
+  <div class="col-md-4">
+    <form class="form" id="toilet-message-form">
+      <div class="form-group">
+        <div class="input-group">
+          <span class="input-group-addon">id</span>
+          <input id="toilet-id"
+                 class="form-control"
+                 type="number"
+                 placeholder="Toilet id"
+                 value=1
+                 step=1>
+        </div>
+        <div class="input-group">
+          <label>
+            <input id="toilet-reserved" type="checkbox"> Reserved
+          </label>
+        </div>
+        <div class="input-group">
+          <span class="input-group-addon">Methane</span>
+          <input id="toilet-methane"
+                 class="form-control"
+                 type="number"
+                 placeholder="percent"
+                 step="any">
+        </div>
+      </div>
+      <button id="send-toilet-message" class="btn btn-default" type="submit">Send a toilet message</button>
+    </form>
+  </div>
+  <div class="col-md-4">
+    <% var responseType = 'toilet'; %>
+    <% var responseHolder='response-toilet'; %>
+    <% include response-holder.ejs %>
+  </div>
+ </div>
+<script>
+  (function ($) {
+    var responseType = '<%= responseType %>';
+    var $responseHolder = $('#<%= responseType%>-holder');
+    var utils = window.FUTU2.utils;
+    var socket = window.FUTU2.socket;
+
+    $('#send-toilet-message').on('click', function (event) {
+      event.preventDefault();
+      var toiletId = $('#toilet-id').val();
+      var isToiletReserved = $('#toilet-reserved').is(':checked');
+      var methane = $('#toilet-methane').val();
+      socket.emit('message', {
+        id: toiletId,
+        type: 'toilet',
+        reserved: isToiletReserved,
+        methane: utils.formatNumberInput(methane)
+      });
+    });
+
+    socket.on('stream', function(messages){
+      var message = utils.returnFirstMessage([responseType], messages);
+      if (message) {
+        utils.renderJson($responseHolder, message)
+      }
+    });
+
+  })(jQuery);
+</script>
