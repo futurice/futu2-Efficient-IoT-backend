@@ -8,7 +8,7 @@
   },
   "scripts": {
     "babel-build": "$(npm bin)/babel ./app -d dist ",
-    "copytemplate": "cat app/views/index.ejs | $(npm bin)/n-pipe dist/views/index.ejs",
+    "copytemplate": "cp -r app/views/ dist/views",
     "test": "npm run lint && NODE_ENV=test $(npm bin)/_mocha --compilers js:babel-core/register -- tests/*.js || exit 0",
     "test-watch": "$(npm bin)/nodemon --exec 'babel-node' -x 'NODE_ENV=test $(npm bin)/_mocha --compilers js:babel-core/register -- tests/*.js'",
     "clean": "$(npm bin)/n-clean dist",
@@ -17,8 +17,8 @@
     "lint": "npm run jscs && npm run eslint",
     "start": "$(npm bin)/nodemon --exec 'babel-node' ./app/bin/www",
     "watch": "npm run lint && npm start",
-    "build": "npm run lint && npm run clean && mkdir dist && npm run babel-build && npm run copytemplate",
-    "postinstall": "echo ----------> Postinstall build && npm run build",
+    "build": "npm run lint && npm run clean && npm run babel-build && npm run copytemplate",
+    "postinstall": "echo ----------> Postinstall build; npm run build",
     "serve": "node ./dist/bin/www"
   },
   "keywords": [
