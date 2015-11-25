@@ -56,9 +56,9 @@
     });
 
     socket.on('stream', function(messages){
-      var message = utils.returnFirstMessage([responseType], messages);
-      if (message) {
-        utils.renderJson($responseHolder, message)
+      var toiletMessages = utils.messagesByType([responseType], messages);
+      if (toiletMessages.length) {
+        utils.renderJson($responseHolder, toiletMessages[0])
       }
     });
 

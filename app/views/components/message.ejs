@@ -86,10 +86,10 @@
       $imageStreamInput.val("");
     });
 
-    socket.on('stream', function(messages){
-      var message = utils.returnFirstMessage(types, messages);
-        if (message) {
-          utils.renderJson($responseHolder, substringFile(message))
+    socket.on('stream', function(streamMessages){
+      var messages = utils.messagesByType(types, streamMessages);
+        if (messages.length) {
+          utils.renderJson($responseHolder, substringFile(messages[0]))
         }
       });
 
