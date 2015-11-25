@@ -38,14 +38,15 @@
   </div>
 </div>
 <script>
-  (function ($) {
+  (function ($, FUTU2) {
     var types = [];
     <% for(var i=0; i<messageTypes.length; i++) {%>
     types.push('<%= messageTypes[i] %>');
     <% } %>
     var $responseHolder = $('#<%= responseType%>-holder');
-    var utils = window.FUTU2.utils;
-    var socket = window.FUTU2.socket;
+
+    var utils = FUTU2.utils;
+    var socket = FUTU2.getSocket();
 
     var $imageInput = $("#message-image");
     var $imageStreamInput = $("#message-image-stream");
@@ -98,5 +99,5 @@
       }
       return json;
     }
-  })(jQuery);
+  })(jQuery, window.FUTU2);
 </script>

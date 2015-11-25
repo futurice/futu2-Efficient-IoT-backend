@@ -9,6 +9,10 @@
       margin: 3rem 0 2rem;
     }
 
+    .json-response pre {
+      border: 0 none;
+    }
+
     .form {
       border-bottom: 1px dashed #ccc;
       margin-bottom: 1rem;
@@ -23,54 +27,8 @@
       margin-bottom: 1.5rem;
     }
   </style>
-  <script>
-
-    (function($) {
-      var host = window.location.protocol + '//' + window.location.host;
-      var socket = io.connect(host);
-
-      function formatNumberInput(input) {
-        return parseInt(input, 10);
-      }
-
-      function renderJson($el, json) {
-        var $pre = $('<pre/>', { text: stringify(json) });
-        $el.html($pre);
-      }
-
-      function stringify(o) {
-        var str =
-          $.map(o, function (val, key) {
-            var formatted = typeof val === 'string' ? `"${val}"` : val;
-            return `  ${key}: ${formatted}`;
-          });
-        return `{\n${str.join(',\n')}\n}`;
-      }
-
-      function returnFirstMessage(messageTypes, messages) {
-        if(!messages.length) {
-          return;
-        }
-        return matchMessageType(messages[0].type, messageTypes) && messages[0];
-      }
-
-      function matchMessageType(messageType, messageTypes){
-        return messageTypes.findIndex(function(type){ return messageType === type; }) !== -1;
-      }
-
-      window.FUTU2 = {
-        socket: socket,
-        utils: {
-          returnFirstMessage: returnFirstMessage,
-          formatNumberInput: formatNumberInput,
-          matchMessageType: matchMessageType,
-          renderJson: renderJson
-        }
-      };
-
-    })(jQuery);
-    </script>
-    </head>
+  <script src="/js/common.js"></script>
+</head>
 <body>
 <div class="container-fluid">
   <div class="page-header">
@@ -92,7 +50,6 @@
     <h3>Room info</h3>
     <% responseType = 'room'; %>
     <% include components/room.ejs %>
-
   </div>
 </div>
 </body>

@@ -35,11 +35,12 @@
   </div>
  </div>
 <script>
-  (function ($) {
+  (function ($, FUTU2) {
     var responseType = '<%= responseType %>';
     var $responseHolder = $('#<%= responseType%>-holder');
-    var utils = window.FUTU2.utils;
-    var socket = window.FUTU2.socket;
+
+    var utils = FUTU2.utils;
+    var socket = FUTU2.getSocket();
 
     $('#send-toilet-message').on('click', function (event) {
       event.preventDefault();
@@ -61,5 +62,5 @@
       }
     });
 
-  })(jQuery);
+  })(jQuery, window.FUTU2);
 </script>

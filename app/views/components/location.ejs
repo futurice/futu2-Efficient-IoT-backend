@@ -44,10 +44,11 @@
   </div>
 </div>
 <script>
-  (function ($) {
+  (function ($, FUTU2) {
     var $responseHolder = $('#<%= responseType%>-holder');
-    var utils = window.FUTU2.utils;
-    var socket = window.FUTU2.socket;
+
+    var utils = FUTU2.utils;
+    var socket = FUTU2.getSocket();
 
     $('#send-location').on('click', function (event) {
       event.preventDefault();
@@ -69,5 +70,5 @@
     socket.on('location', function(location){
       utils.renderJson($responseHolder, location);
     });
-  })(jQuery);
+  })(jQuery, window.FUTU2);
 </script>
