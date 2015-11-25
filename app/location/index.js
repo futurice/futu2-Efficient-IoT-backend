@@ -1,3 +1,4 @@
+'use strict';
 const Rx = require('rx');
 const { beacons } = require('config');
 
