@@ -4,7 +4,9 @@ const { beacons } = require('config');
 
 exports.fromDeviceStream = stream => {
   const beaconStreams = splitInToBeaconStreams(stream, beacons);
-  return Rx.Observable.combineLatest(beaconStreams, (...results) => calculatePosition(results));
+  return Rx.Observable.combineLatest(
+    beaconStreams,
+    (beacon1, beacon2, beacon3, rest) => calculatePosition(beacon1, beacon2, beacon3));
 };
 
 function splitInToBeaconStreams(stream, beaconsConfiguration) {
@@ -31,17 +33,16 @@ function mapDataWithConfig(data, config) {
  http://stackoverflow.com/questions/20332856/triangulate-example-for-ibeacons#answer-20976803
  */
 
-function calculatePosition(devices) {
+function calculatePosition(obj1, obj2, obj3) {
 
-  let [obj, obj2, obj3, rest] = devices;
-  const W = getIntersectionPoint(obj, obj2);
+  const W = getIntersectionPoint(obj1, obj2);
   const Z = getIntersectionPoint(obj2, obj3);
-  const Y = (W * (obj3.y - obj2.y) - Z * (obj2.y - obj.y));
-  const x = Y / (2 * ((obj2.x - obj.x) * (obj3.y - obj2.y) - (obj3.x - obj2.x) * (obj2.y - obj.y)));
-  const y = (W - 2 * x * (obj2.x - obj.x)) / (2 * (obj2.y - obj.y));
+  const Y = (W * (obj3.y - obj2.y) - Z * (obj2.y - obj1.y));
+  const x = Y / (2 * ((obj2.x - obj1.x) * (obj3.y - obj2.y) - (obj3.x - obj2.x) * (obj2.y - obj1.y)));
+  const y = (W - 2 * x * (obj2.x - obj1.x)) / (2 * (obj2.y - obj1.y));
 
   return {
-    email: obj.email,
+    email: obj1.email, // pick the email from first object
     x: isValidPosition(x) && x || 0,
     y: isValidPosition(y) && y || 0
   };
