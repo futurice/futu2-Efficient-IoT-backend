@@ -45,12 +45,7 @@
       var toiletId = $('#toilet-id').val();
       var isToiletReserved = $('#toilet-reserved').is(':checked');
       var methane = $('#toilet-methane').val();
-      socket.emit('message', {
-        id: toiletId,
-        type: 'toilet',
-        reserved: isToiletReserved,
-        methane: utils.formatNumberInput(methane)
-      });
+      socket.emit('init');
     });
 
     socket.on('stream', function(messages){
