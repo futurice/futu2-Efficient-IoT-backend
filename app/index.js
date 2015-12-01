@@ -5,16 +5,12 @@ const socketIO = require('socket.io');
 const logger = require('morgan');
 const Rx = require('rx');
 const bodyParser = require('body-parser');
-const AppStorage = require('app/storage');
+const storage = require('app/storage');
 const routes = require('app/routes');
 const location = require('app/location');
 
 // init app
 const app = express();
-
-
-// init storage
-var appStorage = new AppStorage();
 
 
 // view engine setup
@@ -37,16 +33,21 @@ app.use((req, res, next) => {
   next(err);
 });
 
+// init storage
+const appStorage = storage.connect();
+
 
 // set up socket.IO
 app.io = socketIO();
 app.io.on('error', error => console.log(`Socket connection error: ${error}`));
 
 
+// socket connection
 const observableFromSocketEvent = event => socket => Rx.Observable.fromEvent(socket, event);
 const connectionSource = observableFromSocketEvent('connection')(app.io.sockets);
 
-// Locations
+
+// get location by beacon
 const beaconSource = connectionSource.flatMap(observableFromSocketEvent('beacon'));
 location.fromDeviceStream(beaconSource)
   .subscribe(
@@ -54,25 +55,28 @@ location.fromDeviceStream(beaconSource)
     error => console.log(`Location stream error:${error}`));
 
 
-// Messages
+// set data
 const messageSource =
   connectionSource
-    .flatMap(observableFromSocketEvent('message'))
+    .flatMap(observableFromSocketEvent('message'));
+
+const setStorageSource =
+  messageSource
     .flatMap(message => appStorage.set(message));
 
-
-messageSource
+setStorageSource
   .subscribe(
-    message => app.io.emit('stream', [message]),
+    value => app.io.emit('stream', [value]),
     error => console.log(`Stream error:${error}`)
   );
 
-//Init
+// init data for clients
 const initSource = connectionSource.flatMap(observableFromSocketEvent('init'));
-const storageSource = appStorage.getAll();
+const storageSource =
+  initSource
+    .flatMap(val => appStorage.getAll());
 
-initSource
-    .flatMap(storageSource) // only interested about when init happens
+storageSource
     .subscribe(
       messages => app.io.emit('state', messages),
       error => console.log(`Stream error:${error}`)
