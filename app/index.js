@@ -56,13 +56,8 @@ location.fromDeviceStream(beaconSource)
 
 
 // set data
-const messageSource =
-  connectionSource
-    .flatMap(observableFromSocketEvent('message'));
-
-const setStorageSource =
-  messageSource
-    .flatMap(message => appStorage.set(message));
+const messageSource = connectionSource.flatMap(observableFromSocketEvent('message'));
+const setStorageSource = messageSource.flatMap(message => appStorage.set(message));
 
 setStorageSource
   .subscribe(
