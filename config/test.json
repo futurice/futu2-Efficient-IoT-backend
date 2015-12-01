@@ -1,8 +1,8 @@
 {
-  "stream": {
-    "interval": 100
+  "STREAM": {
+    "INTERVAL": 100
   },
-  "beacons": [
+  "BEACONS": [
     {
       "id": 1,
       "type": "Room Beacon",

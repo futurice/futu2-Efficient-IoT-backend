@@ -1,9 +1,9 @@
 'use strict';
 const Rx = require('rx');
-const { beacons } = require('config');
+const { BEACONS } = require('config');
 
 exports.fromDeviceStream = stream => {
-  const beaconStreams = splitInToBeaconStreams(stream, beacons);
+  const beaconStreams = splitInToBeaconStreams(stream, BEACONS);
   return Rx.Observable.combineLatest(
     beaconStreams,
     (beacon1, beacon2, beacon3, rest) => calculatePosition(beacon1, beacon2, beacon3));

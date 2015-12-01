@@ -1,13 +1,13 @@
 'use strict';
 const express = require('express');
-const { stream } = require('config');
+const { STREAM } = require('config');
 
 const router = express.Router();
 
 router.get('/', (req, res) => {
 	res.render('index', {
 		title: 'Futu2',
-    stream: stream
+    STREAM: STREAM
 	});
 });
 

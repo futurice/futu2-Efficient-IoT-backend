@@ -5,7 +5,6 @@ const socketIO = require('socket.io');
 const logger = require('morgan');
 const Rx = require('rx');
 const bodyParser = require('body-parser');
-const { stream } = require('config');
 const AppStorage = require('app/storage');
 const routes = require('app/routes');
 const location = require('app/location');

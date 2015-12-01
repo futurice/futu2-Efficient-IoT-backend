@@ -1,8 +1,8 @@
 {
-  "stream": {
-    "interval": 5000
+  "STREAM": {
+    "INTERVAL": 5000
   },
-  "beacons": [
+  "BEACONS": [
     {
       "id": "futu-b1-32095-19454",
       "type": "Room Beacon",
