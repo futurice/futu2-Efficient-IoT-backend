@@ -5,7 +5,7 @@ const socketIO = require('socket.io');
 const logger = require('morgan');
 const Rx = require('rx');
 const bodyParser = require('body-parser');
-const storage = require('app/storage');
+const Storage = require('app/storage');
 const routes = require('app/routes');
 const location = require('app/location');
 
@@ -34,7 +34,7 @@ app.use((req, res, next) => {
 });
 
 // init storage
-const appStorage = storage.connect();
+const appStorage = new Storage();
 
 
 // set up socket.IO
