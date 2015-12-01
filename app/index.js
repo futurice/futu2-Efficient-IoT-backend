@@ -63,7 +63,7 @@ const messageSource =
 
 messageSource
   .subscribe(
-    messages => { console.log(messages); return app.io.emit('stream', [messages])},
+    message => app.io.emit('stream', [message]),
     error => console.log(`Stream error:${error}`)
   );
 
