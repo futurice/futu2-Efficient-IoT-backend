@@ -81,6 +81,9 @@
     <h1><%= title %></h1>
   </div>
   <div class="container-fluid">
+    <h3>Init data</h3>
+    <% include components/init.ejs %>
+
     <h3>Location</h3>
     <% responseType = 'location'; %>
     <% include components/location.ejs %>

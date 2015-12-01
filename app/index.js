@@ -5,43 +5,17 @@ const socketIO = require('socket.io');
 const logger = require('morgan');
 const Rx = require('rx');
 const bodyParser = require('body-parser');
-const bluebird = require('bluebird');
-const redis = require('redis');
 const { stream } = require('config');
+const AppStorage = require('app/storage');
 const routes = require('app/routes');
 const location = require('app/location');
+
+// init app
 const app = express();
 
-bluebird.promisifyAll(redis.RedisClient.prototype);
-bluebird.promisifyAll(redis.Multi.prototype);
 
-const redisClient = redis.createClient();
-
-// redis staff
-const storeRedis = message => {
-  const label = `${message.type}:${message.id}`;
-  return redisClient.set([label, JSON.stringify(message)], (err, str) => {
-    if (str) {
-      console.log(`${label} saved to redis`);
-      return message;
-    } else {
-      console.log(`error when saving ${label} to redis`);
-      return null
-    }
-  });
-};
-
-const getAll = () => {
-  redisClient.keys('*', (err, keys) => {
-    if (keys) {
-      return keys.map(key => {
-        console.log(key);
-        redisClient.get(key)
-      });
-    }
-    return []
-  });
-};
+// init storage
+var appStorage = new AppStorage();
 
 
 // view engine setup
@@ -64,9 +38,10 @@ app.use((req, res, next) => {
   next(err);
 });
 
+
+// set up socket.IO
 app.io = socketIO();
 app.io.on('error', error => console.log(`Socket connection error: ${error}`));
-redisClient.on('error', error => console.log(`Redis connection error: ${error}`));
 
 
 const observableFromSocketEvent = event => socket => Rx.Observable.fromEvent(socket, event);
@@ -81,35 +56,26 @@ location.fromDeviceStream(beaconSource)
 
 
 // Messages
-const cachedSource =
+const messageSource =
   connectionSource
     .flatMap(observableFromSocketEvent('message'))
-    .map((message) => {
-      if (storeRedis(message)){
-        return message;
-      } else {
-        return null;
-      }
-    });
+    .map(message => appStorage.set(message));
 
-cachedSource
+
+messageSource
   .subscribe(
     messages => app.io.emit('stream', [messages]),
     error => console.log(`Stream error:${error}`)
   );
 
-
 //Init
 const initSource = connectionSource.flatMap(observableFromSocketEvent('init'));
-const stateSource = Rx.Observable.fromCallback(getAll);
+const storageSource = appStorage.getAll();
 
 initSource
-    .flatMap(stateSource)
+    .flatMap(storageSource) // only interested about when init happens
     .subscribe(
-      messages => {
-        console.log(messages);
-        app.io.emit('state', [messages])
-      },
+      messages => app.io.emit('state', messages),
       error => console.log(`Stream error:${error}`)
     );
 
