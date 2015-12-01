@@ -12,7 +12,7 @@ class Storage {
       let client;
       if (process.env.REDISTOGO_URL) {
         let prodRedis = url.parse(process.env.REDISTOGO_URL);
-        this.client = redis.createClient(prodRedis.port, prodRedis.hostname);
+        client = redis.createClient(prodRedis.port, prodRedis.hostname);
       } else {
         client = redis.createClient();
       }
