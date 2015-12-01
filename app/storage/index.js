@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 const Rx = require('rx');
 const redis = require('redis');
 
@@ -8,47 +8,36 @@ class Storage {
     this.client.on('error', error => console.error(`Redis error: cache connection error: ${error}`));
 
     this.set = message => {
+      const observable = Rx.Observable.fromNodeCallback(this.client.set, this.client);
       const key = `${message.type}:${message.id}`;
       const value = JSON.stringify(message);
-
-      const save = () => {
-        return this.client.set(key, value, (err, str) => {
-          if (str) {
-            console.log(`Redis: "${key}" saved to redis`);
-          } else {
-            console.log(`Redis error: AppStorage.set(${key}) -> ${error}`);
-          }
-        });
-      };
-
-      if(save()) {
-        console.log(`Redis: return value for "${key}"`);
-        return message;
-      } else {
-        console.log(`Redis: no value for key "${key}"`);
-        return null;
-      }
+      return observable(key, value)
+          .map(x => {
+            console.log(`Redis: saved ${key}`);
+            return message // return original message
+          })
+          .doOnError(error => console.error(`Redis error: Storage.set(${key}) -> ${error}`));
     };
 
     this.keys = () => {
-      return Rx.Observable.fromNodeCallback(this.client.keys, this.client);
+      const observable = Rx.Observable.fromNodeCallback(this.client.keys, this.client);
+      return observable('*')
+        .doOnError(error => console.error(`Redis error: Storage.keys -> ${error}`));
     };
 
-    this.get = () => {
-      return Rx.Observable.fromNodeCallback(this.client.get, this.client);
+    this.get = key => {
+      const observable = Rx.Observable.fromNodeCallback(this.client.get, this.client);
+      return observable(key)
+        .doOnError(error => console.error(`Redis error: Storage.get(${key}) -> ${error}`));
     };
 
-    this.getAll = () => {
-      const keysStream = this.keys();
-      const valueStream = this.get();
+    this.getAll = () => {  // TODO: needs improvements -- ugly code
       const keys =
-        keysStream('*')
+        this.keys()
           .flatMap(keys => {
             return keys
               .map(
-                key =>
-                  valueStream(key)
-                    .map(val => JSON.parse(val))
+                key => this.get(key).map(val => JSON.parse(val))
               );
           });
 
@@ -57,7 +46,8 @@ class Storage {
         (vals) => vals
       )
       .flatMap(vals => vals)
-      .bufferWithCount(100);
+      .bufferWithCount(100)
+      .doOnError(error => console.error(`Redis error: Storage.getAll(${key}) -> ${error}`));
     };
   }
 }

@@ -59,12 +59,12 @@ location.fromDeviceStream(beaconSource)
 const messageSource =
   connectionSource
     .flatMap(observableFromSocketEvent('message'))
-    .map(message => appStorage.set(message));
+    .flatMap(message => appStorage.set(message));
 
 
 messageSource
   .subscribe(
-    messages => app.io.emit('stream', [messages]),
+    messages => { console.log(messages); return app.io.emit('stream', [messages])},
     error => console.log(`Stream error:${error}`)
   );
 
