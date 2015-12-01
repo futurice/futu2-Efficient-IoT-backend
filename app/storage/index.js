@@ -27,7 +27,7 @@ class Storage {
       return observable(key, value)
           .map(x => {
             console.log(`Redis: saved ${key}`);
-            return message // return original message
+            return message; // return original message
           })
           .doOnError(error => console.error(`Redis error: Storage.set(${key}) -> ${error}`));
     };
@@ -50,17 +50,20 @@ class Storage {
           .flatMap(keys => {
             return keys
               .map(
-                key => this.get(key).map(val => JSON.parse(val))
+                key => this.get(key).map(val => {
+                  console.error(`Redis: Storage.getAll fetched ${key}`);
+                  return JSON.parse(val);
+                })
               );
           });
 
       return Rx.Observable.combineLatest(
         keys,
         (vals) => vals
-      )
-      .flatMap(vals => vals)
-      .bufferWithCount(100)
-      .doOnError(error => console.error(`Redis error: Storage.getAll(${key}) -> ${error}`));
+        )
+        .flatMap(vals => vals)
+        .bufferWithCount(100)
+        .doOnError(error => console.error(`Redis error: Storage.getAll(${key}) -> ${error}`));
     };
   }
 }
