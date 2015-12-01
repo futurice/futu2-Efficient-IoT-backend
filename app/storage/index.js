@@ -1,11 +1,23 @@
 'use strict';
 const Rx = require('rx');
 const redis = require('redis');
+const url = require('url');
 
 class Storage {
   constructor() {
-    this.client = redis.createClient();
+    this.client = connect();
     this.client.on('error', error => console.error(`Redis error: cache connection error: ${error}`));
+
+    function connect(){
+      let client;
+      if (process.env.REDISTOGO_URL) {
+        let prodRedis = url.parse(process.env.REDISTOGO_URL);
+        this.client = redis.createClient(prodRedis.port, prodRedis.hostname);
+      } else {
+        client = redis.createClient();
+      }
+      return client;
+    };
 
     this.set = message => {
       const observable = Rx.Observable.fromNodeCallback(this.client.set, this.client);
