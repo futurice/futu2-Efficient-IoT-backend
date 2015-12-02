@@ -1,77 +1,120 @@
 'use strict';
-const app = require('../bin/www');
+const TEST_MESSAGE = { type: 'test-room', id: '1a', text:'text' };
 const io = require('socket.io-client');
 const socketURL = 'http://0.0.0.0:8080';
 const should = require('should');
 const { stream } = require('../config/index.js');
+const assert = require('assert');
+const sinon = require('sinon');
+const fakeRedis = require('fakeRedis');
 const options ={
   transports: ['websocket'],
   'force new connection': true
 };
+const redisClient = fakeRedis.createClient();
+sinon.spy(redisClient, 'set');
+sinon.stub(require('redis'), 'createClient').returns(redisClient);
 
-describe("App", () => {
+describe('App', () => {
 
-  it('should locate user', done => {
-    /*
-     Beacon locations (1,2,3) are in config/test.json
-     ClientA location should be in the center: 2,2
+  before(() => {
+    const app = require('../bin/www');
+  });
 
-     +---+---+---+
-     |   |   |   |
-     | 1 |   | 2 |
-     |   |   |   |
-     +-----------+
-     |   |   |   |
-     |   | A |   |
-     |   |   |   |
-     +-----------+
-     |   |   |   |
-     | 3 |   |   |
-     |   |   |   |
-     +---+---+---+
-     */
+  afterEach(done => {
+    redisClient.flushdb(err => done());
+  });
 
-    const CLIENT_A_LOCATION = { email: 'ClientA', x: 2, y: 2 };
-    const clientA = io.connect(socketURL, options);
-    const clientB = io.connect(socketURL, options);
+  describe('On "beacon" events', () => {
 
-    clientA.on('connect', () => {
-      clientA.emit('beacon', { email: 'ClientA', id: 1, distance: 1, floor: 1 });
-      clientA.emit('beacon', { email: 'ClientA', id: 2, distance: 1, floor: 1 });
-      clientA.emit('beacon', { email: 'ClientA', id: 3, distance: 1, floor: 1 });
+    it('should locate user', done => {
+      /*
+       Beacon locations (1,2,3) are in config/test.json
+       ClientA location should be in the center: 2,2
 
-      clientA.on('location', message => {
+       +---+---+---+
+       |   |   |   |
+       | 1 |   | 2 |
+       |   |   |   |
+       +-----------+
+       |   |   |   |
+       |   | A |   |
+       |   |   |   |
+       +-----------+
+       |   |   |   |
+       | 3 |   |   |
+       |   |   |   |
+       +---+---+---+
+       */
+
+      const CLIENT_A_LOCATION = { email: 'ClientA', x: 2, y: 2 };
+      const clientA = io.connect(socketURL, options);
+      const clientB = io.connect(socketURL, options);
+
+      clientA.on('connect', () => {
+        clientA.emit('beacon', { email: 'ClientA', id: 1, distance: 1, floor: 1 });
+        clientA.emit('beacon', { email: 'ClientA', id: 2, distance: 1, floor: 1 });
+        clientA.emit('beacon', { email: 'ClientA', id: 3, distance: 1, floor: 1 });
+
+        clientA.on('location', message => {
+          should(message).deepEqual(CLIENT_A_LOCATION);
+          done();
+        });
+
+        clientA.disconnect();
+      });
+
+      clientB.on('location', message => {
         should(message).deepEqual(CLIENT_A_LOCATION);
+        clientB.disconnect();
         done();
       });
 
-      clientA.disconnect();
-    });
-
-    clientB.on('location', message => {
-      should(message).deepEqual(CLIENT_A_LOCATION);
-      clientB.disconnect();
-      done();
     });
 
   });
 
-  it('should publish messages', done => {
-    const clientSending = io.connect(socketURL, options);
-    const clientListening = io.connect(socketURL, options);
-    const messageContent = { test: 'test', text:'text' };
+  describe('On socket "message" event', () => {
 
-    clientSending.on('connect', data => {
-      clientSending.emit('message', messageContent);
+    it('should publish messages', done => {
+      const clientA = io.connect(socketURL, options);
+      const clientB = io.connect(socketURL, options);
+
+      clientA.on('connect', () => {
+        clientA.emit('message', TEST_MESSAGE);
+      });
+
+      clientA.on('stream', message => {
+        should(message[0]).deepEqual(TEST_MESSAGE);
+      });
+
+      clientB.on('stream', message => {
+        should(message[0]).deepEqual(TEST_MESSAGE);
+        clientA.disconnect();
+        clientB.disconnect();
+        done();
+      });
+
     });
 
-    clientSending.on('stream', message => {
-      should(message[0]).deepEqual(messageContent);
-    });
+  });
 
-    clientListening.on('stream', message => {
-      should(message[0]).deepEqual(messageContent);
-      done();
+  describe('On "init" event', () => {
+
+    it('should return messages from cache', done => {
+      const client = io.connect(socketURL, options);
+      redisClient.set(`${TEST_MESSAGE.type}:${TEST_MESSAGE.id}`, JSON.stringify(TEST_MESSAGE)); // set
+
+      client.on('connect', () => {
+        client.emit('init');
+      });
+
+      client.on('state', messages => {
+        should(messages[0]).deepEqual(TEST_MESSAGE);
+        client.disconnect();
+        done();
+      });
+
     });
 
   });
