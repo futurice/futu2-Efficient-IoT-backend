@@ -52,7 +52,7 @@ const beaconSource = connectionSource.flatMap(observableFromSocketEvent('beacon'
 location.fromDeviceStream(beaconSource)
   .subscribe(
     location => app.io.emit('location', location),
-    error => console.log(`Location stream error:${error}`));
+    error => console.error(`Location stream error:${error}`));
 
 
 // set data
@@ -62,7 +62,7 @@ const setStorageSource = messageSource.flatMap(message => appStorage.set(message
 setStorageSource
   .subscribe(
     value => app.io.emit('stream', [value]),
-    error => console.log(`Stream error:${error}`)
+    error => console.error(`Stream error:${error}`)
   );
 
 // init data for clients
@@ -74,10 +74,7 @@ const storageSource =
 storageSource
     .subscribe(
       messages => app.io.emit('state', messages),
-      error => console.log(`Stream error:${error}`)
+      error => console.error(`Stream error:${error}`)
     );
 
 module.exports = app;
-
-
-

@@ -10,7 +10,7 @@ const storageUtils = {
       if (redisUrl) {
         client = redis.createClient(redisUrl);
       } else {
-        client = redis.createClient();
+        client = redis.createClient(6379, 'localhost');
       }
       return client;
   }
@@ -74,4 +74,3 @@ class Storage {
 }
 
 module.exports = Storage;
-
