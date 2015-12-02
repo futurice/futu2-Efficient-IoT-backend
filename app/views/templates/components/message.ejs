@@ -95,7 +95,7 @@
         $imagePreview.removeClass('hidden');
         $imagePreviewImage.attr('src', 'data:image/png;base64,' + image);
       } else {
-        $imageInput.val('')
+        $imageInput.val('');
         $imageStreamInput.val('');
         $imagePreview.addClass('hidden');
         $imagePreviewImage.attr('src', '');
@@ -105,15 +105,9 @@
     socket.on('stream', function(streamMessages){
       var messages = utils.messagesByType(types, streamMessages);
         if (messages.length) {
-          utils.renderJson($responseHolder, substringFile(messages[0]))
+          utils.renderJson($responseHolder, messages[0])
         }
       });
 
-    function substringFile(json) {
-      if (json.file) {
-        json.file = json.file.substr(0, 15) + '..';
-      }
-      return json;
-    }
   })(jQuery, window.FUTU2);
 </script>

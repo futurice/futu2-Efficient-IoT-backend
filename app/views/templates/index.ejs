@@ -47,10 +47,15 @@
       function stringify(o) {
         var str =
           $.map(o, function (val, key) {
-            var formatted = typeof val === 'string' ? `"${val}"` : val;
+            var formatted = typeof val === 'string' ? `"${truncate(val)}"` : val;
             return `  ${key}: ${formatted}`;
           });
         return `{\n${str.join(',\n')}\n}`;
+      }
+
+      function truncate(str) {
+        var LIMIT = 35;
+        return str.length > LIMIT ? (str.substr(0, (LIMIT - 2)) + '..') : str;
       }
 
       function messagesByType(messageTypes, messages) {
