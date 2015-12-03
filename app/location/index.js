@@ -1,9 +1,9 @@
 'use strict';
 const Rx = require('rx');
-const { beacons } = require('config');
+const { BEACONS } = require('config');
 
 exports.fromDeviceStream = stream => {
-  const beaconStreams = splitInToBeaconStreams(stream, beacons);
+  const beaconStreams = splitInToBeaconStreams(stream, BEACONS);
   return Rx.Observable.combineLatest(
     beaconStreams,
     (beacon1, beacon2, beacon3, rest) => calculatePosition(beacon1, beacon2, beacon3));
@@ -11,15 +11,15 @@ exports.fromDeviceStream = stream => {
 
 function splitInToBeaconStreams(stream, beaconsConfiguration) {
   return beaconsConfiguration.map(beaconConfig => {
-      return stream
-        .filter(beaconData => beaconData.floor === beaconConfig.floor)
-        .filter(beaconData => beaconData.id === beaconConfig.id)
-        .map(beaconData => mapDataWithConfig(beaconData, beaconConfig));
-    });
+    return stream
+      .filter(beaconData => beaconData.floor === beaconConfig.floor)
+      .filter(beaconData => beaconData.id === beaconConfig.id)
+      .map(beaconData => mapDataWithConfig(beaconData, beaconConfig));
+  });
 }
 
 function mapDataWithConfig(data, config) {
- return {
+  return {
     id: data.id,
     email: data.email,
     distance: data.distance,

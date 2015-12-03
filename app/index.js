@@ -2,51 +2,59 @@
 const path = require('path');
 const express = require('express');
 const socketIO = require('socket.io');
-const logger = require('morgan');
 const Rx = require('rx');
-const bodyParser = require('body-parser');
-const { stream } = require('config');
-const routes = require('app/routes');
+const Storage = require('app/storage');
 const location = require('app/location');
+const views = require('app/views');
+
+// init app setup
 const app = express();
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
-app.use('/css', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/css')));
-app.use('/js', express.static(path.join(__dirname, './views/js')));
 
-app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}));
-app.use('/', routes);
-app.use((err) => {
-  logger('error:' + err.message);
-});
+// init cache storage
+const appCache = new Storage();
 
-app.use((req, res, next) => {
-  const err = new Error('Not Found');
-  err.status = 404;
-  next(err);
-});
 
+// set up socket.IO
 app.io = socketIO();
-app.io.on('error', () => console.log('user connection failed'));
+app.io.on('error', error => console.log(`Socket connection error: ${error}`));
+app.io.on('connection', socket => {
+  const observableFor = observableFromSocketEvent(socket);
+  publishLocation(observableFor('beacon'));
+  publishMessage(observableFor('message'));
+  sendInitData(observableFor('init'), socket);
+});
 
-const observableFromSocketEvent = event => socket => Rx.Observable.fromEvent(socket, event);
-const connectionSource = observableFromSocketEvent('connection')(app.io.sockets);
-const beaconSource = connectionSource.flatMap(observableFromSocketEvent('beacon'));
-const messageSource = connectionSource.flatMap(observableFromSocketEvent('message'));
+const observableFromSocketEvent = socket => event => Rx.Observable.fromEvent(socket, event);
 
-location.fromDeviceStream(beaconSource)
+const publishLocation = source => {
+  location.fromDeviceStream(source)
     .subscribe(
       location => app.io.emit('location', location),
-      error => console.log(`location stream error:${error}`));
+      error => console.error(`Location stream error:${error}`));
+};
 
-messageSource
-  .bufferWithTime(stream.interval)
-  .subscribeOnNext(
-    messages => app.io.emit('stream', messages),
-    error => console.log(`Stream error:${error}`));
+const publishMessage = source => {
+  source
+    .flatMap(message => appCache.set(message))
+    .subscribe(
+      value => app.io.emit('stream', [value]),
+      error => console.error(`Stream error:${error}`)
+    );
+};
+
+const sendInitData = (source, socket) => {
+  source
+    .flatMap(appCache.getAll.bind(appCache))
+    .subscribe(
+      messages => socket.emit('state', messages),
+      error => console.error(`Init stream error:${error}`)
+    );
+};
+
+
+// render test page
+views.renderTestPage(app);
+
 
 module.exports = app;

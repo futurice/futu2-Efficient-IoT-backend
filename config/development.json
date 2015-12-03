@@ -1,8 +1,11 @@
 {
-  "stream": {
-    "interval": 5000
+  "STREAM": {
+    "INTERVAL": 5000
   },
-  "beacons": [
+  "MESSAGE_TTL": {
+    "default": 300
+  },
+  "BEACONS": [
     {
       "id": "futu-b1-32095-19454",
       "type": "Room Beacon",
