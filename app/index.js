@@ -11,10 +11,6 @@ const views = require('app/views');
 const app = express();
 
 
-// render test page
-views.renderTestPage(app);
-
-
 // init cache storage
 const appCache = new Storage();
 
@@ -25,38 +21,47 @@ app.io.on('error', error => console.log(`Socket connection error: ${error}`));
 
 
 // socket connection
-const observableFromSocketEvent = event => socket => Rx.Observable.fromEvent(socket, event);
-const connectionSource = observableFromSocketEvent('connection')(app.io.sockets);
+app.io.on('connection', socket => {
+  const listenerFor = observableFromSocketEvent(socket);
+  publishLocation(listenerFor('beacon'));
+  publishMessage(listenerFor('message'));
+  sendInitData(listenerFor('init'),socket);
+});
 
+const observableFromSocketEvent = socket => event => Rx.Observable.fromEvent(socket, event);
 
-// get location by beacon
-const beaconSource = connectionSource.flatMap(observableFromSocketEvent('beacon'));
-location.fromDeviceStream(beaconSource)
-  .subscribe(
-    location => app.io.emit('location', location),
-    error => console.error(`Location stream error:${error}`));
-
-
-// set data
-const messageSource = connectionSource.flatMap(observableFromSocketEvent('message'));
-const setStorageSource = messageSource.flatMap(message => appCache.set(message));
-
-setStorageSource
-  .subscribe(
-    value => app.io.emit('stream', [value]),
-    error => console.error(`Stream error:${error}`)
-  );
-
-// init data for clients
-const initSource = connectionSource.flatMap(observableFromSocketEvent('init'));
-const storageSource =
-  initSource
-    .flatMap(val => appCache.getAll());
-
-storageSource
+const publishLocation = source => {
+  location.fromDeviceStream(source)
     .subscribe(
-      messages => app.io.emit('state', messages),
+      location => app.io.emit('location', location),
+      error => console.error(`Location stream error:${error}`));
+};
+
+const publishMessage = source => {
+  const setStorageSource = source.flatMap(message => appCache.set(message));
+
+  setStorageSource
+    .subscribe(
+      value => app.io.emit('stream', [value]),
       error => console.error(`Stream error:${error}`)
     );
+};
+
+const sendInitData = (source, socket) => {
+  const storageSource =
+    source
+      .flatMap(appCache.getAll());
+
+  storageSource
+    .subscribe(
+      messages => socket.emit('state', messages),
+      error => console.error(`Stream error:${error}`)
+    );
+};
+
+
+// render test page
+views.renderTestPage(app);
+
 
 module.exports = app;

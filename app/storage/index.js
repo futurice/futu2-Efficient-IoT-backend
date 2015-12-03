@@ -51,12 +51,10 @@ class Storage {
         console.log(`Redis: Storage.keys fetched -> ${keys}`);
         return keys;
       })
-      .distinct()
       .doOnError(error => console.error(`Redis error: Storage.keys -> ${error}`));
   }
 
-  getAll() {  // TODO: needs improvements -- ugly code
-    const observable = Rx.Observable.fromNodeCallback(this.client.keys, this.client);
+  getAll(a) {  // TODO: needs improvements -- ugly code
     const keys =
       this.keys()
         .flatMap(keys => {
