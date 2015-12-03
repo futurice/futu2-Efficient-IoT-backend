@@ -71,7 +71,7 @@ class Storage {
       .doOnError(error => console.error(`Redis error: Storage.keys -> ${error}`));
   }
 
-  getAll(a) {  // TODO: needs improvements -- ugly code
+  getAll() {  // TODO: needs improvements -- ugly code
     const keys =
       this.keys()
         .flatMap(keys => keys.map(key => this.get(key)));
