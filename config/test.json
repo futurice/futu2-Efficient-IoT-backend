@@ -2,6 +2,9 @@
   "STREAM": {
     "INTERVAL": 100
   },
+  "MESSAGE_TTL": {
+    "default": 10
+  },
   "BEACONS": [
     {
       "id": 1,

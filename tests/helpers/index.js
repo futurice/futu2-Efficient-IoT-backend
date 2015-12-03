@@ -1,9 +1,9 @@
 'use strict';
 const io = require('socket.io-client');
-const socketURL = 'http://0.0.0.0:8080';
 const sinon = require('sinon');
 const fakeRedis = require('fakeRedis');
 
+const socketURL = `http://0.0.0.0:${process.env.PORT}`;
 var cache = null;
 
 const helpers = {

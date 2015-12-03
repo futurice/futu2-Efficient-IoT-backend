@@ -4,7 +4,7 @@ const assert = require('assert');
 const helpers = require('./helpers/index');
 const cache = helpers.setupCache();
 
-describe('App: On "init" event', function () {
+describe('App: On init event', function () {
 
   before(() => {
     const app = require('../bin/www');
@@ -19,7 +19,7 @@ describe('App: On "init" event', function () {
     const clientA = helpers.createSocketConnection();
     const clientB = helpers.createSocketConnection();
 
-    cache.set(`${TEST_MESSAGE.type}:${TEST_MESSAGE.id}`, JSON.stringify(TEST_MESSAGE)); // set
+    cache.set(`${TEST_MESSAGE.type}:${TEST_MESSAGE.id}`, JSON.stringify(TEST_MESSAGE));
 
     clientA.on('connect', () => {
       clientA.emit('init');

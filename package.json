@@ -7,8 +7,8 @@
     "node": "4.1.1"
   },
   "scripts": {
-    "test": "npm run lint && NODE_PATH=. NODE_ENV=test $(npm bin)/_mocha --compilers js:babel-core/register -- tests/*.js || exit 0",
-    "test-watch": "$(npm bin)/nodemon --exec 'babel-node' -x 'NODE_PATH=. NODE_ENV=test $(npm bin)/_mocha --compilers js:babel-core/register -- tests/*.js'",
+    "test": "npm run lint && NODE_PATH=. NODE_ENV=test PORT=9090 $(npm bin)/_mocha --compilers js:babel-core/register -- tests/*.js || exit 0",
+    "test-watch": "$(npm bin)/nodemon --exec 'babel-node' -x 'NODE_PATH=. NODE_ENV=test PORT=9090 $(npm bin)/_mocha --compilers js:babel-core/register -- tests/*.js'",
     "jscs": "$(npm bin)/jscs app",
     "eslint": "$(npm bin)/eslint app",
     "lint": "npm run jscs && npm run eslint",

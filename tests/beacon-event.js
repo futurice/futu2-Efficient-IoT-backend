@@ -3,7 +3,7 @@ const should = require('should');
 const assert = require('assert');
 const helpers = require('./helpers/index');
 
-describe('App: On "beacon" events', function() {
+describe('App: On beacon event', function () {
 
   before(() => {
     const app = require('../bin/www');

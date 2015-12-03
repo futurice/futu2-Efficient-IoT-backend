@@ -45,7 +45,7 @@ const publishMessage = source => {
 
 const sendInitData = (source, socket) => {
   source
-    .flatMap(appCache.getAll())
+    .flatMap(appCache.getAll.bind(appCache))
     .subscribe(
       messages => socket.emit('state', messages),
       error => console.error(`Init stream error:${error}`)

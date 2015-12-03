@@ -2,15 +2,16 @@
 const should = require('should');
 const assert = require('assert');
 const helpers = require('./helpers/index');
+const config = require('../config');
 const cache = helpers.setupCache();
 
-describe('App: On socket "message" event', function() {
+describe('App: On message event', function () {
 
   before(() => {
     const app = require('../bin/www');
   });
 
-  afterEach(helpers.flushCache);
+  after(helpers.flushCache);
 
   it('should publish messages', done => {
     const TEST_MESSAGE = helpers.TEST_MESSAGE;
@@ -29,6 +30,15 @@ describe('App: On socket "message" event', function() {
       should(message[0]).deepEqual(TEST_MESSAGE);
       clientA.disconnect();
       clientB.disconnect();
+      done();
+    });
+
+  });
+
+  it('should message have expiration time', done => {
+    const TEST_MESSAGE = helpers.TEST_MESSAGE;
+    cache.ttl(`${TEST_MESSAGE.type}:${TEST_MESSAGE.id}`, (err, ttl) => {
+      should(ttl).equal(config.MESSAGE_TTL.default);
       done();
     });
 

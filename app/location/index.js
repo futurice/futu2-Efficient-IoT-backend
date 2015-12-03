@@ -11,15 +11,15 @@ exports.fromDeviceStream = stream => {
 
 function splitInToBeaconStreams(stream, beaconsConfiguration) {
   return beaconsConfiguration.map(beaconConfig => {
-      return stream
-        .filter(beaconData => beaconData.floor === beaconConfig.floor)
-        .filter(beaconData => beaconData.id === beaconConfig.id)
-        .map(beaconData => mapDataWithConfig(beaconData, beaconConfig));
-    });
+    return stream
+      .filter(beaconData => beaconData.floor === beaconConfig.floor)
+      .filter(beaconData => beaconData.id === beaconConfig.id)
+      .map(beaconData => mapDataWithConfig(beaconData, beaconConfig));
+  });
 }
 
 function mapDataWithConfig(data, config) {
- return {
+  return {
     id: data.id,
     email: data.email,
     distance: data.distance,
