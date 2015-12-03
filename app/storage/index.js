@@ -41,7 +41,7 @@ class Storage {
         console.log(`Redis: Storage.expire ${seconds} seconds for "${key}"`);
         return val;
       })
-      .doOnError(error => console.error(`Redis error: Storage.setExpire(${key},${seconds}) -> ${error}`));
+      .doOnError(error => console.error(`Redis error: Storage.expires(${key},${seconds}) -> ${error}`));
   }
 
   set(message) {

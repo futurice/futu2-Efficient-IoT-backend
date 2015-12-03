@@ -35,7 +35,7 @@ describe('App: On message event', function () {
 
   });
 
-  it('should message have expiration time', done => {
+  it('should add expiration time for messages', done => {
     const TEST_MESSAGE = helpers.TEST_MESSAGE;
     cache.ttl(`${TEST_MESSAGE.type}:${TEST_MESSAGE.id}`, (err, ttl) => {
       should(ttl).equal(config.MESSAGE_TTL.default);
