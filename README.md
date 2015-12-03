@@ -14,11 +14,6 @@
 3. Start server and watch changes: ```npm run watch```
 4. Visit [http://localhost:8080/](http://localhost:8080/)  to test different events
 
-### Production setup
-1. Install dependencies:```npm install```
-2. Serve:```npm run serve```
-3. Visit [http://localhost:8080/](http://localhost:8080/) to test different events 
-
 ### Other commands
 - To lint (ESlint and JSCS): ```npm run lint```
 - To run tests: ```npm run test```
