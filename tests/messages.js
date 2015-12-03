@@ -4,7 +4,7 @@ const assert = require('assert');
 const helpers = require('./helpers/index');
 const cache = helpers.setupCache();
 
-describe('App: On socket "message" event', () => {
+describe('App: On socket "message" event', function() {
 
   before(() => {
     const app = require('../bin/www');

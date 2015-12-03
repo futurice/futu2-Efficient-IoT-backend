@@ -3,13 +3,13 @@ const should = require('should');
 const assert = require('assert');
 const helpers = require('./helpers/index');
 
-describe('App: On "beacon" events', () => {
+describe('App: On "beacon" events', function() {
 
   before(() => {
     const app = require('../bin/www');
   });
 
-  it('should locate user', done => {
+  it('should publish user location', done => {
     /*
      Beacon locations (1,2,3) are in config/test.json
      ClientA location should be in the center: 2,2

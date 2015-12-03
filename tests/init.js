@@ -4,7 +4,7 @@ const assert = require('assert');
 const helpers = require('./helpers/index');
 const cache = helpers.setupCache();
 
-describe('App: On "init" event', () => {
+describe('App: On "init" event', function () {
 
   before(() => {
     const app = require('../bin/www');
@@ -12,7 +12,9 @@ describe('App: On "init" event', () => {
 
   afterEach(helpers.flushCache);
 
-  it('should return messages from cache', done => {
+  it('should send messages from cache', done => {
+    var messagesForClientA;
+    var messagesForClientB;
     const TEST_MESSAGE = helpers.TEST_MESSAGE;
     const clientA = helpers.createSocketConnection();
     const clientB = helpers.createSocketConnection();
@@ -23,12 +25,16 @@ describe('App: On "init" event', () => {
       clientA.emit('init');
     });
 
-    clientA.on('state', messages => {
-      should(messages[0]).deepEqual(TEST_MESSAGE);
-      clientA.disconnect();
-      done();
+    clientB.on('state', messages => {
+      messagesForClientB = messages;
     });
 
+    clientA.on('state', messages => {
+      messagesForClientA = messages;
+      should(messagesForClientA[0]).deepEqual(TEST_MESSAGE);
+      should(messagesForClientB).equal(undefined);
+      setTimeout(done, 10);
+    });
   });
 
 });
