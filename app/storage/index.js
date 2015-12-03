@@ -28,17 +28,17 @@ class Storage {
     const observable = Rx.Observable.fromNodeCallback(this.client.get, this.client);
     return observable(key)
       .map(val => {
-        console.log(`Redis: Storage.get fetched  -> ${key}`);
+        console.log(`Redis: Storage.get fetched "${key}"`);
         return JSON.parse(val);
       })
       .doOnError(error => console.error(`Redis error: Storage.get(${key}) -> ${error}`));
   }
 
-  setExpire(key, seconds) {
+  expire(key, seconds) {
     const observable = Rx.Observable.fromNodeCallback(this.client.expire, this.client);
     return observable(key, seconds)
       .map(val => {
-        console.log(`Redis: Storage.setExpire ${seconds} seconds -> ${key}`);
+        console.log(`Redis: Storage.expire ${seconds} seconds for "${key}"`);
         return val;
       })
       .doOnError(error => console.error(`Redis error: Storage.setExpire(${key},${seconds}) -> ${error}`));
@@ -50,16 +50,13 @@ class Storage {
     const key = `${message.type}:${message.id}`;
     return observable(key, JSON.stringify(message))
       .map(status => {
-        console.log(`Redis: Storage.set saved ${key}`);
-        return this.setExpire(key, expiresInSeconds);
+        console.log(`Redis: Storage.set saved "${key}"`);
+        return status;
       })
-      .map(expire => {
-        console.log(`Redis: Storage.set expire ${expiresInSeconds}seconds set for ${key}`);
-        return expire;
-      })
-      .zip(this.get(key)) // return value from database
-      .map(([expire, dbValue]) => {
-        console.log(`Redis: Storage.set got ${key}`);
+      .zip(this.expire(key, expiresInSeconds))
+      .zip(this.get(key))
+      .map(([statusAndExpire, dbValue]) => {
+        console.log(`Redis: Storage.set got "${key}"`);
         return dbValue;
       })
       .doOnError(error => console.error(`Redis error: Storage.set(${key}) -> ${error}`));
