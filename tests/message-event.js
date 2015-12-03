@@ -13,7 +13,7 @@ describe('App: On message event', function () {
 
   after(helpers.flushCache);
 
-  it('should publish messages', done => {
+  it('should publish message', done => {
     const TEST_MESSAGE = helpers.TEST_MESSAGE;
     const clientA = helpers.createSocketConnection();
     const clientB = helpers.createSocketConnection();
@@ -35,7 +35,7 @@ describe('App: On message event', function () {
 
   });
 
-  it('should add expiration time for messages', done => {
+  it('should add expiration time for message', done => {
     const TEST_MESSAGE = helpers.TEST_MESSAGE;
     cache.ttl(`${TEST_MESSAGE.type}:${TEST_MESSAGE.id}`, (err, ttl) => {
       should(ttl).equal(config.MESSAGE_TTL.default);
