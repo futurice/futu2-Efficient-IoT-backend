@@ -18,14 +18,11 @@ const appCache = new Storage();
 // set up socket.IO
 app.io = socketIO();
 app.io.on('error', error => console.log(`Socket connection error: ${error}`));
-
-
-// socket connection
 app.io.on('connection', socket => {
-  const listenerFor = observableFromSocketEvent(socket);
-  publishLocation(listenerFor('beacon'));
-  publishMessage(listenerFor('message'));
-  sendInitData(listenerFor('init'),socket);
+  const observableFor = observableFromSocketEvent(socket);
+  publishLocation(observableFor('beacon'));
+  publishMessage(observableFor('message'));
+  sendInitData(observableFor('init'), socket);
 });
 
 const observableFromSocketEvent = socket => event => Rx.Observable.fromEvent(socket, event);
@@ -38,9 +35,8 @@ const publishLocation = source => {
 };
 
 const publishMessage = source => {
-  const setStorageSource = source.flatMap(message => appCache.set(message));
-
-  setStorageSource
+  source
+    .flatMap(message => appCache.set(message))
     .subscribe(
       value => app.io.emit('stream', [value]),
       error => console.error(`Stream error:${error}`)
@@ -48,14 +44,11 @@ const publishMessage = source => {
 };
 
 const sendInitData = (source, socket) => {
-  const storageSource =
-    source
-      .flatMap(appCache.getAll());
-
-  storageSource
+  source
+    .flatMap(appCache.getAll())
     .subscribe(
       messages => socket.emit('state', messages),
-      error => console.error(`Stream error:${error}`)
+      error => console.error(`Init stream error:${error}`)
     );
 };
 
