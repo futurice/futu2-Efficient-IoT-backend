@@ -3,7 +3,7 @@ const path = require('path');
 const express = require('express');
 const socketIO = require('socket.io');
 const Rx = require('rx');
-const Storage = require('app/storage');
+const Cache = require('app/cache');
 const location = require('app/location');
 const views = require('app/views');
 
@@ -12,7 +12,7 @@ const app = express();
 
 
 // init cache storage
-const appCache = new Storage();
+const appCache = new Cache();
 
 
 // set up socket.IO
