@@ -35,11 +35,8 @@ class Cache {
   }
 
   getInitData() {
-    const keys =
-      this.keys()
-        .flatMap(keys => keys.map(this.get.bind(this)));
-
-    return keys
+    return this.keys()
+      .flatMap(keys => keys.map(this.get.bind(this)))
       .flatMap(values => values)
       .bufferWithCount(1000)
       .doOnError(logError(error => `Redis error: Cache.getAll -> ${error}`));
