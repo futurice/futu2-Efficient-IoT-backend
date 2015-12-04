@@ -4,7 +4,7 @@ const sinon = require('sinon');
 const fakeRedis = require('fakeRedis');
 
 const socketURL = `http://0.0.0.0:${process.env.PORT}`;
-var cache = null;
+var cacheClient = null;
 
 const helpers = {
 
@@ -20,18 +20,18 @@ const helpers = {
   }),
 
   setupCache: () => {
-    if (cache) {
-      return cache;
+    if (cacheClient) {
+      return cacheClient;
     } else {
-      cache = fakeRedis.createClient();
-      sinon.spy(cache, 'set');
-      const redisStub = sinon.stub(require('redis'), 'createClient').returns(cache);
-      return cache;
+      cacheClient = fakeRedis.createClient();
+      sinon.spy(cacheClient, 'set');
+      const redisStub = sinon.stub(require('redis'), 'createClient').returns(cacheClient);
+      return cacheClient;
     }
   },
 
   flushCache: done => {
-    cache.flushdb(err => done());
+    cacheClient.flushdb(err => done());
   }
 
 };
