@@ -39,8 +39,7 @@ class Cache {
       this.keys()
         .flatMap(keys => keys.map(this.get.bind(this)));
 
-    return Rx.Observable
-      .combineLatest(keys, values => values)
+    return keys
       .flatMap(values => values)
       .bufferWithCount(1000)
       .doOnError(logError(error => `Redis error: Cache.getAll -> ${error}`));
