@@ -3,7 +3,7 @@ const path = require('path');
 const express = require('express');
 const socketIO = require('socket.io');
 const Rx = require('rx');
-const Storage = require('app/storage');
+const Cache = require('app/cache');
 const location = require('app/location');
 const views = require('app/views');
 
@@ -12,7 +12,7 @@ const app = express();
 
 
 // init cache storage
-const appCache = new Storage();
+const appCache = new Cache();
 
 
 // set up socket.IO
@@ -38,14 +38,14 @@ const publishMessage = source => {
   source
     .flatMap(message => appCache.set(message))
     .subscribe(
-      value => app.io.emit('stream', [value]),
+      value =>  app.io.emit('stream', [value]),
       error => console.error(`Stream error:${error}`)
     );
 };
 
 const sendInitData = (source, socket) => {
   source
-    .flatMap(appCache.getAll.bind(appCache))
+    .flatMap(appCache.getInitData.bind(appCache))
     .subscribe(
       messages => socket.emit('state', messages),
       error => console.error(`Init stream error:${error}`)

@@ -3,7 +3,7 @@ const should = require('should');
 const assert = require('assert');
 const helpers = require('./helpers/index');
 const config = require('../config');
-const cache = helpers.setupCache();
+const cacheClient = helpers.setupCache();
 
 describe('App: On message event', function () {
 
@@ -37,7 +37,7 @@ describe('App: On message event', function () {
 
   it('should add expiration time for message', done => {
     const TEST_MESSAGE = helpers.TEST_MESSAGE;
-    cache.ttl(`${TEST_MESSAGE.type}:${TEST_MESSAGE.id}`, (err, ttl) => {
+    cacheClient.ttl(`${TEST_MESSAGE.type}:${TEST_MESSAGE.id}`, (err, ttl) => {
       should(ttl).equal(config.MESSAGE_TTL.default);
       done();
     });
