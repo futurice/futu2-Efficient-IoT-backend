@@ -17,7 +17,7 @@ class Cache {
     } else {
       this.client = redis.createClient();
     }
-    this.client.on('error', error => console.error(`Redis error: cache connection error: ${error}`));
+    this.client.on('error', logError(error => `Redis error: cache connection error: ${error}`));
   }
 
   set(message) {
@@ -41,7 +41,7 @@ class Cache {
 
     return Rx.Observable
       .combineLatest(keys, values => values)
-      .flatMap(vals => vals)
+      .flatMap(values => values)
       .bufferWithCount(1000)
       .doOnError(logError(error => `Redis error: Cache.getAll -> ${error}`));
   }
@@ -56,16 +56,16 @@ class Cache {
   get(key) {
     const observable = Rx.Observable.fromNodeCallback(this.client.get, this.client);
     return observable(key)
-      .map(log(`Redis: Cache.get fetched "${key}"`))
       .map(JSON.parse)
+      .map(log(`Redis: Cache.get fetched "${key}"`))
       .doOnError(logError(error => `Redis error: Cache.get(${key}): ${error}`));
   }
 }
 
 function log(message) {
-  return function (val) {
+  return function (values) {
     console.log(message);
-    return val;
+    return values;
   };
 }
 
