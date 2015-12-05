@@ -16,11 +16,12 @@ class Cache {
       .flatMap(message => {
         const expiresInSeconds = this.messageExpirations[message.type] || this.messageExpirations.default;
         const key = message.id ? `${message.type}:${message.id}` : `${message.type}`;
+        const logSet = utils.log(key => `Cache.set ${key}`);
         const multi = this.client
           .multi()
-          .set(key, JSON.stringify(message), logGet(key))
+          .set(key, JSON.stringify(message), logSet(key))
           .expire(key, expiresInSeconds)
-          .get(key, utils.log(value => `Cache.get ${key}`)); // use client method get to ensure atomic operation
+          .get(key, utils.log(value => `Cache.client.get ${key}`)); // use client method get to ensure atomic operation
 
           return Rx.Observable.fromNodeCallback(multi.exec, multi)()
             .map(([setStatus, ttlStatus, message]) => JSON.parse(message))
@@ -50,13 +51,9 @@ class Cache {
     const observable = Rx.Observable.fromNodeCallback(this.client.get, this.client);
     return observable(key)
       .map(JSON.parse)
-      .map(logGet(key))
+      .map(utils.log(key => `Cache.get ${key}`))
       .doOnError(utils.logError(error => `Cache error: Cache.get(${key}): ${error}`));
   }
-}
-
-function logGet(key) {
-  return utils.log(value => `Cache.get "${key}"`);
 }
 
 module.exports = Cache;
