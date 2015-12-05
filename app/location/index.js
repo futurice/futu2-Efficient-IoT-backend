@@ -1,12 +1,22 @@
 'use strict';
 const Rx = require('rx');
-const { BEACONS } = require('config');
+const utils = require('app/utils');
 
-exports.fromDeviceStream = stream => {
-  const beaconStreams = splitInToBeaconStreams(stream, BEACONS);
+class Location {
+  constructor (beacons) {
+    this.beacons = beacons
+  }
+
+  fromDeviceStream (stream) {
+  const beaconStreams = splitInToBeaconStreams(stream, this.beacons);
   return Rx.Observable.combineLatest(
     beaconStreams,
-    (beacon1, beacon2, beacon3, rest) => calculatePosition(beacon1, beacon2, beacon3));
+    (beacon1, beacon2, beacon3, rest) => {
+      console.log()
+      const log = utils.log(value => `Location.fromDeviceStream (${beacon1.id}, ${beacon2.id}, ${beacon3.id}) --> x:${value.x}, y:${value.y}`);
+      return log(calculatePosition(beacon1, beacon2, beacon3));
+    })
+  }
 };
 
 function splitInToBeaconStreams(stream, beaconsConfiguration) {
@@ -54,3 +64,4 @@ const getIntersectionPoint = (obj1, obj2) => {
 
 const isValidPosition = (x) => !(isNaN(x) || x + x === x); // infinity + infinity = infinity
 
+module.exports = Location;

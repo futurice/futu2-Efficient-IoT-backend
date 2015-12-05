@@ -3,16 +3,32 @@ const path = require('path');
 const express = require('express');
 const socketIO = require('socket.io');
 const Rx = require('rx');
+const redis = require('redis');
 const Cache = require('app/cache');
-const location = require('app/location');
+const { BEACONS, MESSAGE_TTL } = require('config');
+const Location = require('app/location');
 const views = require('app/views');
+const utils = require('app/utils');
+
 
 // init app setup
 const app = express();
 
 
 // init cache storage
-const appCache = new Cache();
+const cacheClient = () => {
+  let redisUrl = process.env.REDIS_URL;
+  if (redisUrl) {
+    return redis.createClient(redisUrl);
+  } else {
+    return redis.createClient();
+  }
+};
+const appCache = new Cache(cacheClient(), MESSAGE_TTL);
+
+
+// init location module
+const location = new Location(BEACONS)
 
 
 // set up socket.IO
@@ -20,35 +36,33 @@ app.io = socketIO();
 app.io.on('error', error => console.log(`Socket connection error: ${error}`));
 app.io.on('connection', socket => {
   const observableFor = observableFromSocketEvent(socket);
-  publishLocation(observableFor('beacon'));
-  publishMessage(observableFor('message'));
+  publishLocation(observableFor('beacon'), app.io);
+  publishMessage(observableFor('message'), app.io);
   sendInitData(observableFor('init'), socket);
 });
 
 const observableFromSocketEvent = socket => event => Rx.Observable.fromEvent(socket, event);
 
-const publishLocation = source => {
+const publishLocation = (source, socket) => {
   location.fromDeviceStream(source)
     .subscribe(
-      location => app.io.emit('location', location),
-      error => console.error(`Location stream error:${error}`));
+      location => socket.emit('location', location),
+      utils.logError(error =>`Location stream error:${error}`));
 };
 
-const publishMessage = source => {
-  source
-    .flatMap(message => appCache.set(message))
+const publishMessage = (source, socket) => {
+  appCache.set(source)
     .subscribe(
-      value =>  app.io.emit('stream', [value]),
-      error => console.error(`Stream error:${error}`)
+      value =>  socket.emit('stream', [value]),
+      utils.logError(error => `Stream error:${error}`)
     );
 };
 
 const sendInitData = (source, socket) => {
-  source
-    .flatMap(message => appCache.getInitData())
+  appCache.getInitData(source)
     .subscribe(
       messages => socket.emit('state', messages),
-      error => console.error(`Init stream error:${error}`)
+      utils.logError(error => `Init stream error:${error}`)
     );
 };
 
