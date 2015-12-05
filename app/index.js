@@ -28,7 +28,7 @@ const appCache = new Cache(cacheClient(), MESSAGE_TTL);
 
 
 // init location module
-const location = new Location(BEACONS)
+const location = new Location(BEACONS);
 
 
 // set up socket.IO

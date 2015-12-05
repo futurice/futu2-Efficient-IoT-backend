@@ -4,7 +4,7 @@ const utils = require('app/utils');
 
 class Location {
   constructor (beacons) {
-    this.beacons = beacons
+    this.beacons = beacons;
   }
 
   fromDeviceStream (stream) {
@@ -12,10 +12,10 @@ class Location {
   return Rx.Observable.combineLatest(
     beaconStreams,
     (beacon1, beacon2, beacon3, rest) => {
-      console.log()
-      const log = utils.log(value => `Location.fromDeviceStream (${beacon1.id}, ${beacon2.id}, ${beacon3.id}) --> x:${value.x}, y:${value.y}`);
+      const logBeacons = `${beacon1.id}, ${beacon2.id}, ${beacon3.id}`;
+      const log = utils.log(value => `Location.fromDeviceStream (${logBeacons}) --> x:${value.x}, y:${value.y}`);
       return log(calculatePosition(beacon1, beacon2, beacon3));
-    })
+    });
   }
 };
 
