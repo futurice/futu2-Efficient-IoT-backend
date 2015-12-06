@@ -4,8 +4,8 @@ const express = require('express');
 const socketIO = require('socket.io');
 const Rx = require('rx');
 const redis = require('redis');
-const Cache = require('app/cache');
 const { BEACONS, MESSAGE_TTL } = require('config');
+const Cache = require('app/cache');
 const Location = require('app/location');
 const views = require('app/views');
 const utils = require('app/utils');
@@ -53,7 +53,7 @@ const publishLocation = (source, socket) => {
 const publishMessage = (source, socket) => {
   appCache.set(source)
     .subscribe(
-      value =>  socket.emit('stream', [value]),
+      value => socket.emit('stream', [value]),
       utils.logError(error => `Stream error:${error}`)
     );
 };

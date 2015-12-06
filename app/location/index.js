@@ -8,14 +8,14 @@ class Location {
   }
 
   fromDeviceStream (stream) {
-  const beaconStreams = splitInToBeaconStreams(stream, this.beacons);
-  return Rx.Observable.combineLatest(
-    beaconStreams,
-    (beacon1, beacon2, beacon3, rest) => {
-      const logBeacons = `${beacon1.id}, ${beacon2.id}, ${beacon3.id}`;
-      const log = utils.log(value => `Location.fromDeviceStream (${logBeacons}) --> x:${value.x}, y:${value.y}`);
-      return log(calculatePosition(beacon1, beacon2, beacon3));
-    });
+    const beaconStreams = splitInToBeaconStreams(stream, this.beacons);
+    return Rx.Observable.combineLatest(
+      beaconStreams,
+      (beacon1, beacon2, beacon3, rest) => {
+        const logBeacons = `${beacon1.id}, ${beacon2.id}, ${beacon3.id}`;
+        const log = utils.log(value => `Location.fromDeviceStream (${logBeacons}) --> x:${value.x}, y:${value.y}`);
+        return log(calculatePosition(beacon1, beacon2, beacon3));
+      });
   }
 };
 
