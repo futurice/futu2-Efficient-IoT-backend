@@ -1,25 +1,23 @@
-<% var messageTypes = ['cake', 'food', 'common']; %>
 <div class="row">
   <div class="col-md-4">
     <form class="form" id="message-form">
-      <div class="form-group">
-        <div class="input-group">
-          <select id="message-type">
-            <% for(var i=0; i<messageTypes.length; i++) {%>
-              <option value="<%= messageTypes[i] %>" <%= messageTypes[i] === 'cake' && 'selected=selected'%> ><%= messageTypes[i]%></option>
-            <% } %>
-          </select>
-        </div>
-        <div class="input-group">
-          <span class="input-group-addon">Title</span>
-          <input id="message-title" class="form-control" type="text" placeholder="Title" value="Cake in kitchen">
-        </div>
-        <div class="input-group">
-          <span class="input-group-addon">Description</span>
-          <input id="message-desc" class="form-control" type="text" placeholder="Optional description">
-        </div>
-        <div class="input-group">
-          <label>Image</label>
+          <div class="input-group">
+            <span class="input-group-addon">Type</span>
+            <input id="property-type"
+                   type="text"
+                   class="form-control"
+                   placeholder="Type is required for identifying">
+          </div>
+          <span id="property-type-error" class="help-block text-danger hidden">Type is required for identifying</span>
+          <div id="property-fields"class="form-inline">
+              <br/>
+              <div class="input-group">
+                <button class="btn btn-success JS-add-property">Add property</button>
+              </div>
+              <br/>
+          </div>
+          <div class="input-group">
+            <label>Image</label>
           <input type="file" id="message-image">
           <input type="hidden" id="message-image-stream">
 
@@ -29,8 +27,7 @@
             <a id="remove-message-image" href="#">Remove image</a>
           </div>
         </div>
-      </div>
-      <button id="send-message" class="btn btn-default" type="submit">Send a message</button>
+      <button id="send-message" class="btn btn-primary" type="submit">Send a message</button>
     </form>
   </div>
   <div class="col-md-4">
@@ -39,44 +36,93 @@
 </div>
 <script>
   (function ($, FUTU2) {
-    var types = [];
-    <% for(var i=0; i<messageTypes.length; i++) {%>
-    types.push('<%= messageTypes[i] %>');
-    <% } %>
-    var $responseHolder = $('#<%= responseType%>-holder');
+    function getCommonTmpl(id) {
+      return (
+        ` <div id="${id}" class="form-group JS-property-field">
+            <div class="input-group">
+              <label>Key</label>
+              <input class="form-control JS-key-input" type="text">
+            </div>
+            <div class="input-group">
+              <label>Value</label>
+              <input class="form-control JS-value-input" type="text">
+            </div>
+            <div><button data-remove-id="${id}" class="btn btn-warning JS-delete-property">Remove Property</button></div>
+            <hr/>
+          </div>
+        `);
+    }
 
-    var utils = FUTU2.utils;
-    var socket = FUTU2.getSocket();
+    const $responseHolder = $('#<%= responseType%>-holder');
+    const $properties = $('#property-fields');
+    const idForProperty = function(){
+      var index = -1;
+      return function(){
+        const current = ++index;
+        return (`property-${current}`);
+      };
+    }();
 
-    var $imageInput = $('#message-image');
-    var $imageStreamInput = $('#message-image-stream');
-    var $imagePreview = $('#message-image-preview');
-    var $imagePreviewImage = $('#message-image-preview-image');
+    $properties.append(getCommonTmpl(idForProperty()));
+
+    $('.JS-add-property').on('click', function(event){
+      event.preventDefault();
+      $properties.append(getCommonTmpl(idForProperty()))
+    });
+
+    $('body').on('click', '.JS-delete-property', function(event){
+      event.preventDefault();
+      const holderId = $(this).data('remove-id');
+      if($('.JS-property-field').length === 1) {
+        return;
+      }
+      $(`#${holderId}`).remove();
+    });
+
+    const utils = FUTU2.utils;
+    const socket = FUTU2.getSocket();
+    const $imageInput = $('#message-image');
+    const $imageStreamInput = $('#message-image-stream');
+    const $imagePreview = $('#message-image-preview');
+    const $imagePreviewImage = $('#message-image-preview-image');
 
     $('#send-message').on('click', function (event) {
       event.preventDefault();
-      var type = $('#message-type').val();
-      var title = $('#message-title').val();
-      var desc = $('#message-desc').val();
-      var imageStream = $imageStreamInput.val();
+      const $typeField = $('#property-type');
+      const $error = $('#property-type-error');
+      const typeValue = $typeField.val();
+      if(typeValue === ""){
+        $typeField.parent('.input-group').addClass('has-error');
+        $error.removeClass('hidden');
+        return
+      }
 
-      socket.emit('message', {
-        type: type,
-        title: title,
-        description: desc,
-        file: imageStream || ""
+      $typeField.parent('.input-group').removeClass('has-error');
+      $error.addClass('hidden');
+      const defaultProp = { type: typeValue };
+      const imageStream = $imageStreamInput.val();
+      const imageProp = imageStream ? { file: imageStream } : {};
+
+      $('.JS-property-field').each(function(i, element){
+        const key = $(element).find('.JS-key-input').val();
+        const value = $(element).find('.JS-value-input').val();
+        if(key === "" || value === ""){
+          return;
+        }
+        defaultProp[key] = $(element).find('.JS-value-input').val();
       });
+      socket.emit('message', $.extend(defaultProp, imageProp));
     });
 
     $imageInput.on('change', function (event) {
-      var files = event.target.files;
-      var file = files[0];
+      const files = event.target.files;
+      const file = files[0];
 
       if (files && file) {
-        var reader = new FileReader();
+        const reader = new FileReader();
         reader.onload = function (readerEvt) {
-          var binaryString = readerEvt.target.result;
-          var val = btoa(binaryString);
+          const binaryString = readerEvt.target.result;
+          const val = btoa(binaryString);
           toggleImage(val)
         };
         reader.readAsBinaryString(file);
@@ -103,9 +149,8 @@
     }
 
     socket.on('stream', function(streamMessages){
-      var messages = utils.messagesByType(types, streamMessages);
-        if (messages.length) {
-          utils.renderJson($responseHolder, messages[0])
+        if (streamMessages.length) {
+          utils.renderJson($responseHolder, streamMessages[0])
         }
       });
 
