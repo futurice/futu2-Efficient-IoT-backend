@@ -3,7 +3,7 @@
     "INTERVAL": 5000
   },
   "MESSAGE_TTL": {
-    "default": 300
+    "default": 28800
   },
   "BEACONS": [
     {
