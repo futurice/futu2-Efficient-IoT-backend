@@ -54,7 +54,7 @@ const publishMessage = (source, socket) => {
   appCache.set(source)
     .subscribe(
       value => socket.emit('stream', [value]),
-      utils.logError(error => `Stream error:${error}`)
+      utils.logError(error => `Message stream error:${error}`)
     );
 };
 
