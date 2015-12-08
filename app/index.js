@@ -61,7 +61,7 @@ const publishMessage = (source, socket) => {
 const sendInitData = (source, socket) => {
   appCache.getInitData(source)
     .subscribe(
-      messages => socket.emit('state', messages),
+      messages => socket.emit('init', messages),
       utils.logError(error => `Init stream error:${error}`)
     );
 };

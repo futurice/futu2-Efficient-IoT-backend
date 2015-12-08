@@ -25,11 +25,11 @@ describe('App: On init event', function () {
       clientA.emit('init');
     });
 
-    clientB.on('state', messages => {
+    clientB.on('init', messages => {
       messagesForClientB = messages;
     });
 
-    clientA.on('state', messages => {
+    clientA.on('init', messages => {
       messagesForClientA = messages;
       should(messagesForClientA[0]).deepEqual(TEST_MESSAGE);
       should(messagesForClientB).equal(undefined);

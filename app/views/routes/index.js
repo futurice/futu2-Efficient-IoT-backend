@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get('/', (req, res) => {
   res.render('index', {
-    title: 'Futu2',
+    title: 'Vör - backend',
     STREAM: STREAM
   });
 });

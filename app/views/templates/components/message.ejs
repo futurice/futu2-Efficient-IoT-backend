@@ -109,7 +109,7 @@
         if(key === "" || value === ""){
           return;
         }
-        defaultProp[key] = $(element).find('.JS-value-input').val();
+        defaultProp[key] = value;
       });
       socket.emit('message', $.extend(defaultProp, imageProp));
     });
